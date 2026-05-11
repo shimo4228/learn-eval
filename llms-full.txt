@@ -10,6 +10,7 @@ This document is the self-contained AI reference for `claude-skill-learn-eval` (
 - **License**: MIT
 - **GitHub**: https://github.com/shimo4228/claude-skill-learn-eval
 - **Author**: shimo4228 (shimomoto-tatsuya)
+- **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
 - **Skill type**: slash-command Agent Skill, Markdown-only
 - **Slash command**: `/learn-eval`
 - **Layout**: `skills/learn-eval/SKILL.md`, `skills/learn-eval/knowledge-placement-decision.md`
@@ -66,3 +67,7 @@ claude-skill-learn-eval should not be used on the very first session of a new pr
 ## How does this skill relate to rules-distill?
 
 The relationship means learn-eval populates the skill layer (single sessions in, candidate skills out) while rules-distill promotes from the skill layer to the rules layer (multiple skills in, candidate rules out). The skill is a kind of upstream feeder. Together they cover the full ladder from session observation to durable rule, with quality gates at each step preventing noise from propagating up.
+
+## Who is shimo4228?
+
+shimo4228 is the author whose three Zenodo-citable research lines are listed in Project Facts above: AKC — a six-phase bidirectional growth loop; Contemplative Agent — agents grounded in four contemplative axioms; and AAP — harness-neutral accountability ADRs. This skill is defined as scaffolding for the **Extract** phase of AKC.
