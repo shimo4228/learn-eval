@@ -1,0 +1,31 @@
+# claude-skill-learn-eval
+
+> A Claude Code skill (MIT) that extracts reusable patterns from a session, self-evaluates their quality before saving, and decides the right save location (Global vs Project). Adds a checklist + holistic-judgment gate to the `/learn` flow so noise skills are dropped, absorbed, or improved before they enter the skill library.
+
+## Core documentation
+
+- [llms-full.txt](llms-full.txt): self-contained Q&A reference for AI agents (Project Facts, Prior Research, 9 question-form H2 sections)
+- [README.md](README.md) / [README.ja.md](README.ja.md): human-facing narrative (English + Japanese)
+- [SKILL.md](skills/learn-eval/SKILL.md): full skill specification — what to extract, save-location decision, quality gate, verdict flow
+
+## Architecture
+
+- 4 verdicts: **Save** (independent, specific, well-scoped), **Improve then Save** (worth keeping but needs revision), **Absorb into [X]** (existing skill should host this content), **Drop** (trivial, redundant, or abstract)
+- Quality gate: deterministic checklist (skill grep, MEMORY.md dedup, existing-skill check, reusability) + holistic verdict
+- Save locations: `~/.claude/skills/learned/` (global, cross-project) or `.claude/skills/learned/` (project-local); default to global when unsure
+- Companion file: [skills/learn-eval/knowledge-placement-decision.md](skills/learn-eval/knowledge-placement-decision.md)
+
+## Standard reference
+
+- [Agent Skill specification](https://agentskills.io/specification): the Claude Code skill format used by this repo
+- [SkillsMP marketplace](https://agentskills.io/specification): one-step install via `/skills add`
+
+## Sibling skills
+
+- [claude-skill-llms-txt-writer](https://github.com/shimo4228/claude-skill-llms-txt-writer): writes AI-facing docs optimized for ChatGPT / Perplexity / Gemini citation
+- [claude-skill-comply](https://github.com/shimo4228/claude-skill-comply): measures whether agents actually follow skill / rule definitions
+- [claude-skill-context-sync](https://github.com/shimo4228/claude-skill-context-sync): audits and fixes project documentation roles
+- [claude-skill-search-first](https://github.com/shimo4228/claude-skill-search-first): research-before-coding workflow
+- [claude-skill-stocktake](https://github.com/shimo4228/claude-skill-stocktake): quality audit for skills and commands
+- [claude-skill-rules-distill](https://github.com/shimo4228/claude-skill-rules-distill): scan installed skills, extract cross-cutting principles, and distill them into rules
+- [claude-skill-daily-research](https://github.com/shimo4228/claude-skill-daily-research): cron-driven daily research digest — theme selection, web research, LLM-as-Judge evaluation

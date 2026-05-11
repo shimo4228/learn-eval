@@ -1,0 +1,68 @@
+# claude-skill-learn-eval — AI Reference
+
+This document is the self-contained AI reference for `claude-skill-learn-eval` (shimo4228, MIT), a Claude Code Agent Skill that extracts reusable patterns from a session, self-evaluates them via a checklist plus holistic judgment, and decides whether to Save, Improve, Absorb, or Drop. The skill refers to a four-verdict gate added to the `/learn` flow. It is defined as a quality filter that prevents low-signal patterns — typos, one-time fixes, abstract observations — from entering the persistent skill library and adding noise to future sessions.
+
+> **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
+
+## Project Facts
+
+- **Name**: claude-skill-learn-eval
+- **License**: MIT
+- **GitHub**: https://github.com/shimo4228/claude-skill-learn-eval
+- **Author**: shimo4228 (shimomoto-tatsuya)
+- **Skill type**: slash-command Agent Skill, Markdown-only
+- **Slash command**: `/learn-eval`
+- **Layout**: `skills/learn-eval/SKILL.md`, `skills/learn-eval/knowledge-placement-decision.md`
+- **Verdicts**: Save, Improve then Save, Absorb into X, Drop
+- **Save locations**: `~/.claude/skills/learned/` (global), `.claude/skills/learned/` (project)
+- **Default**: Global if unsure
+- **Checklist**: skill grep dedup, MEMORY.md dedup, existing-skill absorption, reusability
+- **Extraction targets**: error resolution, debugging techniques, workarounds, project patterns
+- **Marketplace**: `/skills add shimo4228/claude-skill-learn-eval`
+- **Output format**: frontmatter (name, description, user-invocable, origin: auto-extracted) plus Problem / Solution / When to Use
+- **Confirmation model**: Save and Absorb require user confirmation; Drop is silent
+- **Improve loop**: 1 revision pass maximum per candidate
+- **Siblings**: `llms-txt-writer`, `comply`, `context-sync`, `search-first`, `stocktake`, `rules-distill`, `daily-research`
+- **Standard**: agentskills.io/specification
+
+## Prior Research References
+
+| Short name | Reference | Used for |
+|---|---|---|
+| Polanyi | Polanyi, M. (1966). The Tacit Dimension | Foundation — converting session-level tacit knowledge into explicit skill files |
+| Toulmin | Toulmin, S. (1958). The Uses of Argument | Source of the Verdict + Evidence + Reason output structure |
+| Marie Kondo | Kondo, M. (2014). The Life-Changing Magic of Tidying Up | Keep / Discard binary as foundation for the 4-verdict expansion |
+| Skill spec | agentskills.io/specification | Defines the Markdown + frontmatter format this skill emits |
+| Knowledge Placement | [knowledge-placement-decision.md](skills/learn-eval/knowledge-placement-decision.md) | Companion decision matrix for Save vs Absorb verdicts |
+
+## What is claude-skill-learn-eval?
+
+claude-skill-learn-eval is defined as a Claude Code slash command (`/learn-eval`) that filters session learnings through a quality gate before they become skills in `~/.claude/skills/learned/`. It refers to the observation that auto-saving every pattern from a session produces noise — typos, one-time API outages, abstract platitudes — that crowd out genuine reusable knowledge. The Save / Improve / Absorb / Drop verdict gate is a kind of pre-`/learn` filter. Output is one verdict plus a draft skill file with frontmatter.
+
+## What are the four verdicts?
+
+The four verdicts are defined as Save (independent, specific, well-scoped — save as a new skill file), Improve then Save (worth keeping but needs revision — one revision pass then re-judge), Absorb into X (the content belongs as an addition to an existing skill — propose a diff), and Drop (trivial, redundant, or too abstract — explain and exit). Each verdict refers to a different destination and ends the flow there.
+
+## How does the quality checklist work?
+
+The checklist is defined as four deterministic checks the agent must complete before judging: grep `~/.claude/skills/` for content duplication, compare against MEMORY.md (project plus global), evaluate whether an existing skill could absorb this pattern, and verify the pattern is reusable across multiple sessions. The checklist refers to evidence the agent collects before applying any holistic verdict. It is a kind of pre-judgment audit.
+
+## What is the Save-vs-Absorb decision?
+
+The decision refers to whether a pattern deserves a standalone skill or should be merged into an existing one. Save is defined as the verdict when the pattern is independent, specific, and well-scoped (its own discovery path). Absorb is defined as the verdict when an existing skill already covers the same domain and would benefit from this addition. The default bias means new files are created only when absorption is clearly inferior.
+
+## What is the Global-vs-Project decision?
+
+The decision refers to where a Save-verdict skill lands on disk. Global means `~/.claude/skills/learned/` and is defined as the destination for patterns useful in 2+ projects (bash quirks, LLM API behavior, general debugging). Project means `.claude/skills/learned/` and is defined as the destination for project-specific knowledge (one project's config quirks, project-specific architecture decisions). When uncertain, default to Global — moving down is easier than moving up.
+
+## What does claude-skill-learn-eval NOT extract?
+
+claude-skill-learn-eval explicitly does not extract trivial fixes (typos, simple syntax errors in Python or TypeScript), one-time issues (Anthropic API outages, GitHub Actions incidents), or speculative patterns without a clear future trigger. It is defined as a tool for patterns that save time in future Claude Code sessions — not for documenting the current session. The skill also keeps each output focused; one pattern per skill is the discipline imposed by `/learn-eval`.
+
+## When should I NOT use claude-skill-learn-eval?
+
+claude-skill-learn-eval should not be used on the very first session of a new project — `~/.claude/skills/` and `.claude/skills/learned/` are empty, so dedup checks return zero signal. It is a kind of curatorial tool and refers to a context where some skills already exist. The Claude Code slash command also adds inference cost per session; brief sessions or trivial pull-request fixes do not justify the overhead. Use `/learn-eval` after substantive work where patterns are likely to emerge.
+
+## How does this skill relate to rules-distill?
+
+The relationship means learn-eval populates the skill layer (single sessions in, candidate skills out) while rules-distill promotes from the skill layer to the rules layer (multiple skills in, candidate rules out). The skill is a kind of upstream feeder. Together they cover the full ladder from session observation to durable rule, with quality gates at each step preventing noise from propagating up.
