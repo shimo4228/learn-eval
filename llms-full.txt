@@ -1,14 +1,14 @@
-# claude-skill-learn-eval — AI Reference
+# learn-eval — AI Reference
 
-This document is the self-contained AI reference for `claude-skill-learn-eval` (shimo4228, MIT), a Claude Code Agent Skill that extracts reusable patterns from a session, self-evaluates them via a checklist plus holistic judgment, and decides whether to Save, Improve, Absorb, or Drop. The skill refers to a four-verdict gate added to the `/learn` flow. It is defined as a quality filter that prevents low-signal patterns — typos, one-time fixes, abstract observations — from entering the persistent skill library and adding noise to future sessions.
+This document is the self-contained AI reference for `learn-eval` (shimo4228, MIT), a Claude Code Agent Skill that extracts reusable patterns from a session, self-evaluates them via a checklist plus holistic judgment, and decides whether to Save, Improve, Absorb, or Drop. The skill refers to a four-verdict gate added to the `/learn` flow. It is defined as a quality filter that prevents low-signal patterns — typos, one-time fixes, abstract observations — from entering the persistent skill library and adding noise to future sessions.
 
 > **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
 
 ## Project Facts
 
-- **Name**: claude-skill-learn-eval
+- **Name**: learn-eval
 - **License**: MIT
-- **GitHub**: https://github.com/shimo4228/claude-skill-learn-eval
+- **GitHub**: https://github.com/shimo4228/learn-eval
 - **Author**: shimo4228 (shimomoto-tatsuya)
 - **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
 - **Skill type**: slash-command Agent Skill, Markdown-only
@@ -19,7 +19,7 @@ This document is the self-contained AI reference for `claude-skill-learn-eval` (
 - **Default**: Global if unsure
 - **Checklist**: skill grep dedup, MEMORY.md dedup, existing-skill absorption, reusability
 - **Extraction targets**: error resolution, debugging techniques, workarounds, project patterns
-- **Marketplace**: `/skills add shimo4228/claude-skill-learn-eval`
+- **Marketplace**: `/skills add shimo4228/learn-eval`
 - **Output format**: frontmatter (name, description, user-invocable, origin: auto-extracted) plus Problem / Solution / When to Use
 - **Confirmation model**: Save and Absorb require user confirmation; Drop is silent
 - **Improve loop**: 1 revision pass maximum per candidate
@@ -36,9 +36,9 @@ This document is the self-contained AI reference for `claude-skill-learn-eval` (
 | Skill spec | agentskills.io/specification | Defines the Markdown + frontmatter format this skill emits |
 | Knowledge Placement | [knowledge-placement-decision.md](skills/learn-eval/knowledge-placement-decision.md) | Companion decision matrix for Save vs Absorb verdicts |
 
-## What is claude-skill-learn-eval?
+## What is learn-eval?
 
-claude-skill-learn-eval is defined as a Claude Code slash command (`/learn-eval`) that filters session learnings through a quality gate before they become skills in `~/.claude/skills/learned/`. It refers to the observation that auto-saving every pattern from a session produces noise — typos, one-time API outages, abstract platitudes — that crowd out genuine reusable knowledge. The Save / Improve / Absorb / Drop verdict gate is a kind of pre-`/learn` filter. Output is one verdict plus a draft skill file with frontmatter.
+learn-eval is defined as a Claude Code slash command (`/learn-eval`) that filters session learnings through a quality gate before they become skills in `~/.claude/skills/learned/`. It refers to the observation that auto-saving every pattern from a session produces noise — typos, one-time API outages, abstract platitudes — that crowd out genuine reusable knowledge. The Save / Improve / Absorb / Drop verdict gate is a kind of pre-`/learn` filter. Output is one verdict plus a draft skill file with frontmatter.
 
 ## What are the four verdicts?
 
@@ -56,13 +56,13 @@ The decision refers to whether a pattern deserves a standalone skill or should b
 
 The decision refers to where a Save-verdict skill lands on disk. Global means `~/.claude/skills/learned/` and is defined as the destination for patterns useful in 2+ projects (bash quirks, LLM API behavior, general debugging). Project means `.claude/skills/learned/` and is defined as the destination for project-specific knowledge (one project's config quirks, project-specific architecture decisions). When uncertain, default to Global — moving down is easier than moving up.
 
-## What does claude-skill-learn-eval NOT extract?
+## What does learn-eval NOT extract?
 
-claude-skill-learn-eval explicitly does not extract trivial fixes (typos, simple syntax errors in Python or TypeScript), one-time issues (Anthropic API outages, GitHub Actions incidents), or speculative patterns without a clear future trigger. It is defined as a tool for patterns that save time in future Claude Code sessions — not for documenting the current session. The skill also keeps each output focused; one pattern per skill is the discipline imposed by `/learn-eval`.
+learn-eval explicitly does not extract trivial fixes (typos, simple syntax errors in Python or TypeScript), one-time issues (Anthropic API outages, GitHub Actions incidents), or speculative patterns without a clear future trigger. It is defined as a tool for patterns that save time in future Claude Code sessions — not for documenting the current session. The skill also keeps each output focused; one pattern per skill is the discipline imposed by `/learn-eval`.
 
-## When should I NOT use claude-skill-learn-eval?
+## When should I NOT use learn-eval?
 
-claude-skill-learn-eval should not be used on the very first session of a new project — `~/.claude/skills/` and `.claude/skills/learned/` are empty, so dedup checks return zero signal. It is a kind of curatorial tool and refers to a context where some skills already exist. The Claude Code slash command also adds inference cost per session; brief sessions or trivial pull-request fixes do not justify the overhead. Use `/learn-eval` after substantive work where patterns are likely to emerge.
+learn-eval should not be used on the very first session of a new project — `~/.claude/skills/` and `.claude/skills/learned/` are empty, so dedup checks return zero signal. It is a kind of curatorial tool and refers to a context where some skills already exist. The Claude Code slash command also adds inference cost per session; brief sessions or trivial pull-request fixes do not justify the overhead. Use `/learn-eval` after substantive work where patterns are likely to emerge.
 
 ## How does this skill relate to rules-distill?
 

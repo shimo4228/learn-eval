@@ -1,6 +1,6 @@
 Language: English | [日本語](README.ja.md)
 
-# claude-skill-learn-eval
+# learn-eval
 
 An Agent Skill that extracts reusable patterns from Claude Code sessions, self-evaluates their quality, and determines the right save location (Global vs Project) before saving.
 

@@ -28,8 +28,8 @@ The skill assumes Claude Code as the harness and `~/.claude/skills/` / `.claude/
 
 | Skill | Role | When |
 |---|---|---|
-| [`claude-skill-search-first`](https://github.com/shimo4228/claude-skill-search-first) | Research before coding | Earlier phase of the AKC knowledge lifecycle (Search → Skill-stocktake → Learn-eval → Rules-distill) |
-| [`claude-skill-stocktake`](https://github.com/shimo4228/claude-skill-stocktake) | Quality audit for existing skills / commands | Earlier phase; identifies what to retire before new extraction adds more |
-| [`claude-skill-rules-distill`](https://github.com/shimo4228/claude-skill-rules-distill) | Promote cross-cutting principles to rules | Later phase; consumes learn-eval output and lifts repeating patterns from skills to rules |
+| [`search-first`](https://github.com/shimo4228/search-first) | Research before coding | Earlier phase of the AKC knowledge lifecycle (Search → Skill-stocktake → Learn-eval → Rules-distill) |
+| [`skill-stocktake`](https://github.com/shimo4228/skill-stocktake) | Quality audit for existing skills / commands | Earlier phase; identifies what to retire before new extraction adds more |
+| [`rules-distill`](https://github.com/shimo4228/rules-distill) | Promote cross-cutting principles to rules | Later phase; consumes learn-eval output and lifts repeating patterns from skills to rules |
 
 This skill implements the **Extract** phase of the [Agent Knowledge Cycle (AKC)](https://github.com/shimo4228/agent-knowledge-cycle) — a Zenodo-citable six-phase bidirectional growth loop for sustaining intent alignment between an AI agent and its operator over time.

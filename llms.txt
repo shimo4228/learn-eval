@@ -1,4 +1,4 @@
-# claude-skill-learn-eval
+# learn-eval
 
 > A Claude Code skill (MIT) that extracts reusable patterns from a session, self-evaluates their quality before saving, and decides the right save location (Global vs Project). Adds a checklist + holistic-judgment gate to the `/learn` flow so noise skills are dropped, absorbed, or improved before they enter the skill library.
 
@@ -22,10 +22,10 @@
 
 ## Sibling skills
 
-- [claude-skill-llms-txt-writer](https://github.com/shimo4228/claude-skill-llms-txt-writer): writes AI-facing docs optimized for ChatGPT / Perplexity / Gemini citation
-- [claude-skill-comply](https://github.com/shimo4228/claude-skill-comply): measures whether agents actually follow skill / rule definitions
-- [claude-skill-context-sync](https://github.com/shimo4228/claude-skill-context-sync): audits and fixes project documentation roles
-- [claude-skill-search-first](https://github.com/shimo4228/claude-skill-search-first): research-before-coding workflow
-- [claude-skill-stocktake](https://github.com/shimo4228/claude-skill-stocktake): quality audit for skills and commands
-- [claude-skill-rules-distill](https://github.com/shimo4228/claude-skill-rules-distill): scan installed skills, extract cross-cutting principles, and distill them into rules
-- [claude-skill-daily-research](https://github.com/shimo4228/claude-skill-daily-research): cron-driven daily research digest — theme selection, web research, LLM-as-Judge evaluation
+- [llms-txt-writer](https://github.com/shimo4228/llms-txt-writer): writes AI-facing docs optimized for ChatGPT / Perplexity / Gemini citation
+- [skill-comply](https://github.com/shimo4228/skill-comply): measures whether agents actually follow skill / rule definitions
+- [context-sync](https://github.com/shimo4228/context-sync): audits and fixes project documentation roles
+- [search-first](https://github.com/shimo4228/search-first): research-before-coding workflow
+- [skill-stocktake](https://github.com/shimo4228/skill-stocktake): quality audit for skills and commands
+- [rules-distill](https://github.com/shimo4228/rules-distill): scan installed skills, extract cross-cutting principles, and distill them into rules
+- [daily-research](https://github.com/shimo4228/daily-research): cron-driven daily research digest — theme selection, web research, LLM-as-Judge evaluation

@@ -1,6 +1,6 @@
 Language: [English](README.md) | 日本語
 
-# claude-skill-learn-eval
+# learn-eval
 
 Claude Code セッションから再利用可能なパターンを抽出し、品質を自己評価した上で、適切な保存先（Global / Project）を判断して保存する Agent Skill。
 
