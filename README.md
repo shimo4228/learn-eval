@@ -2,7 +2,7 @@ Language: English | [日本語](README.ja.md)
 
 # learn-eval
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/learn-eval)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/learn-eval) [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/shimo4228/learn-eval)](https://gitmcp.io/shimo4228/learn-eval)
 
 An Agent Skill that extracts reusable patterns from Claude Code sessions, self-evaluates their quality, and determines the right save location (Global vs Project) before saving.
 

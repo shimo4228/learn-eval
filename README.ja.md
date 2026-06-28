@@ -2,7 +2,7 @@ Language: [English](README.md) | 日本語
 
 # learn-eval
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/learn-eval)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/learn-eval) [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/shimo4228/learn-eval)](https://gitmcp.io/shimo4228/learn-eval)
 
 Claude Code セッションから再利用可能なパターンを抽出し、品質を自己評価した上で、適切な保存先（Global / Project）を判断して保存する Agent Skill。
 
