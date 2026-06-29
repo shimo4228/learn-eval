@@ -65,6 +65,7 @@ origin: auto-extracted
    - [ ] MEMORY.md（プロジェクト + グローバル）との重複を確認した
    - [ ] 既存スキルへの追記で済むか検討した（knowledge-placement-decision 参照）
    - [ ] 一回限りの修正ではなく、再利用可能なパターンであることを確認した
+   - [ ] パターンを**セッションの観測記録**（実際のツール出力・エラー・ユーザーの訂正）に照合した。自分の要約・言い換えではなく「何が実際に起きたか」に基づいているか
 
    #### 5b. ホリスティック判定
 
@@ -83,6 +84,7 @@ origin: auto-extracted
    - **スコープ適切性**: 名前・トリガー・内容が一致し、1パターンに集中しているか
    - **独自性**: チェックリスト結果を踏まえ、既存知識で代替できない価値があるか
    - **再利用性**: 将来のセッションで現実的にトリガーされる場面があるか
+   - **接地性 (grounding)**: 抽出元が観測記録（実際に起きたこと）か、自分の解釈・要約か。自己評価だけのループは drift する（自分の言い換えが事実として再固定される）ため、観測に接地しない抽出は Drop 寄りに倒す
 
 6. **Verdict 別の確認フロー**
 
@@ -91,6 +93,13 @@ origin: auto-extracted
    - **Drop**: チェックリスト結果 + 理由のみ表示（確認不要で終了）
 
 7. Save / Absorb to the determined location
+
+8. **昇格確認（Save 保存後のみ）**
+
+   `learned/` 配下はフラットな `.md` ファイル置き場であり、`skills/<name>/SKILL.md` 形式の discovery に乗らない。つまり description ベースの自動トリガーは効かず、参照ノートとして grep される受動的な存在に留まる。Save 完了後、ユーザーに 1 回だけ確認する:
+
+   - **learned のまま置く**（default）— 参照資料・grep 対象として十分な場合。確認に応答がなければこちら
+   - **アクティブ skill に昇格** — 今後のセッションで description トリガーによる自動適用を効かせたい場合。Claude Code では Anthropic 公式の **skill-creator** skill を learned ドラフトに対して実行し、`~/.claude/skills/<name>/SKILL.md` として構造化・description 最適化・eval まで行うのがベストプラクティス（learn-eval = 抽出と品質ゲート / skill-creator = 構造化と eval、で役割が分かれる）。昇格完了後は `learned/` 側のファイルを削除し、二重管理を残さない
 
 ## Output Format for Step 5
 

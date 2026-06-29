@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Grounding check in the quality gate.** The pre-save checklist now verifies each extracted pattern against the session's observed record (actual tool output, errors, user corrections) rather than the agent's own summary, with a matching `grounding` holistic dimension that biases ungrounded extractions toward Drop. A purely self-evaluating loop drifts; the check re-anchors extraction on what was observed. Grounded in SkillLearnBench (Zhong et al. arXiv:2604.20087) — see README "References".
+- Synced the skill body to the canonical `~/.claude` version (adds the post-save promotion-confirmation step that routes a `learned/` draft to `skill-creator` for activation).
+
 ### Planned
 
 - Initial public release.

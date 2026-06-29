@@ -70,6 +70,14 @@ Based on the checklist results, one of four verdicts is issued:
 
 - **[`skills/learn-eval/knowledge-placement-decision.md`](skills/learn-eval/knowledge-placement-decision.md)** — A decision tree for choosing between Memory, existing skill append, and new skill creation. Prevents skill sprawl and knowledge burial.
 
+## References
+
+The **grounding check** in the quality gate — verify each extracted pattern against the session's observed record (actual tool output, errors, user corrections) rather than the agent's own summary, because a purely self-evaluating loop drifts — is grounded in 2026 work on continual skill learning:
+
+- [SkillLearnBench: Benchmarking Continual Learning Methods for Agent Skill Generation on Real-World Tasks](https://arxiv.org/abs/2604.20087) (Zhong et al., 2026) — finds that self-feedback alone induces *recursive drift*, while iterations grounded in external feedback yield genuine improvement.
+
+This is the operational counterpart, one layer up the stack, of the model-collapse result: a generative process re-fed its own output degrades. The checklist forces the extraction to re-anchor on what was observed, not on the agent's own prior phrasing.
+
 ## About this skill
 
 This skill implements the **Extract** phase of the [Agent Knowledge Cycle (AKC)](https://github.com/shimo4228/agent-knowledge-cycle) — a Zenodo-citable six-phase bidirectional growth loop ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)) for sustaining intent alignment between an AI agent and its operator over time. AKC is one of three research lines by [@shimo4228](https://github.com/shimo4228), alongside [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)) — autonomous agents grounded in four contemplative axioms — and [Agent Attribution Practice (AAP)](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013)) — harness-neutral ADRs on accountability distribution.

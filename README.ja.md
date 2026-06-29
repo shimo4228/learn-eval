@@ -70,6 +70,14 @@ cp -r skills/learn-eval ~/.claude/skills/learn-eval
 
 - **[`skills/learn-eval/knowledge-placement-decision.md`](skills/learn-eval/knowledge-placement-decision.md)** — Memory・既存スキル追記・新規スキル作成の3択を判断するデシジョンツリー。スキルの乱立と知識の埋没を防ぎます。
 
+## 参考研究
+
+品質ゲートの **接地チェック (grounding check)** — 抽出した各パターンを、エージェント自身の要約ではなくセッションの観測記録（実際のツール出力・エラー・ユーザーの訂正）に照合する。純粋な自己評価ループは drift するため — は、2026 年の継続的スキル学習の研究に基づく:
+
+- [SkillLearnBench: Benchmarking Continual Learning Methods for Agent Skill Generation on Real-World Tasks](https://arxiv.org/abs/2604.20087) (Zhong et al., 2026) — 自己フィードバックのみは *recursive drift（再帰的ドリフト）* を誘発し、外部フィードバックに接地した反復が真の改善を生む、と報告。
+
+これは 1 つ上の層における model collapse の操作的対応物である（自己出力を再投入する生成プロセスは劣化する）。チェックリストは、抽出をエージェント自身の以前の言い回しではなく観測されたものへ再接地させる。
+
 ## このスキルについて
 
 このスキルは [Agent Knowledge Cycle (AKC)](https://github.com/shimo4228/agent-knowledge-cycle) の **Extract** フェーズを実装する — エージェント行動とオペレーターの判断が共発展する 6 フェーズ双方向成長ループ ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726))。AKC は [@shimo4228](https://github.com/shimo4228) の 3 つの研究ラインの 1 つで、他に [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)) — 4 つの contemplative 公理に基づく自律エージェント — と [Agent Attribution Practice (AAP)](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013)) — 自律 AI エージェントの責任分配に関するハーネス中立 ADR — がある。
