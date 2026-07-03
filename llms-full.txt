@@ -21,7 +21,7 @@ This document is the self-contained AI reference for `learn-eval` (shimo4228, MI
 - **Extraction targets**: error resolution, debugging techniques, workarounds, project patterns
 - **Marketplace**: `/skills add shimo4228/learn-eval`
 - **Output format**: frontmatter (name, description, user-invocable, origin: auto-extracted) plus Problem / Solution / When to Use
-- **Confirmation model**: Save and Absorb require user confirmation; Drop is silent
+- **Confirmation model**: Save and Absorb require user confirmation, one candidate at a time with `[y/n/skip]` (evidence first, no batch approval); Drop is silent
 - **Improve loop**: 1 revision pass maximum per candidate
 - **Siblings**: `llms-txt-writer`, `comply`, `context-sync`, `search-first`, `stocktake`, `rules-distill`, `daily-research`
 - **Standard**: agentskills.io/specification

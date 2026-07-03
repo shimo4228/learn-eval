@@ -27,7 +27,7 @@ The skill follows a 7-step process:
 3. **Determine save location** — Global (`~/.claude/skills/learned/`) for cross-project patterns, Project (`.claude/skills/learned/`) for project-specific knowledge
 4. **Draft** the skill file using a standardized format
 5. **Quality gate** — run checklist + holistic judgment
-6. **Confirm** with the user (verdict-specific confirmation flow)
+6. **Confirm** with the user — one candidate at a time (`[y/n/skip]`), evidence first, never batch approval
 7. **Save** or absorb into the determined location
 
 ## Quality Gate

@@ -4,8 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Full English translation.** The skill body (SKILL.md) and the bundled `knowledge-placement-decision.md` are now written entirely in English (previously mixed JA/EN).
+- **Confirm-each flow in Step 6.** Candidates are now confirmed one at a time — evidence first, then `[y/n/skip]` — with bulk approval explicitly banned (design borrowed from config-gc). `n` discards, `skip` defers with a one-line reason.
+
 ### Added
 
+- `scripts/sync-from-local.sh` — one-way export from the live Claude Code harness (vendored byte-identical across shimo4228 skill repos); the harness copy is canonical, this repository is the publication mirror.
 - **Grounding check in the quality gate.** The pre-save checklist now verifies each extracted pattern against the session's observed record (actual tool output, errors, user corrections) rather than the agent's own summary, with a matching `grounding` holistic dimension that biases ungrounded extractions toward Drop. A purely self-evaluating loop drifts; the check re-anchors extraction on what was observed. Grounded in SkillLearnBench (Zhong et al. arXiv:2604.20087) — see README "References".
 - Synced the skill body to the canonical `~/.claude` version (adds the post-save promotion-confirmation step that routes a `learned/` draft to `skill-creator` for activation).
 

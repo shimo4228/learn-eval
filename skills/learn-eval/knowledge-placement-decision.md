@@ -1,57 +1,57 @@
 ---
 name: knowledge-placement-decision
-description: "新しい知見の保存先をメモリ/既存スキル追記/新規スキルの3択で判断するデシジョンツリー"
+description: "Decision tree for choosing where to save new knowledge: memory, append to an existing skill, or a new skill"
 user-invocable: false
 origin: auto-extracted
 ---
 
 # Knowledge Placement Decision
 
-**Context:** 分析・リサーチの成果を永続化する際、保存先の判断ミスでスキル増殖や知識埋没を防ぐ
+**Context:** When persisting the outcome of analysis or research, prevent skill sprawl and knowledge burial caused by choosing the wrong save location
 
 ## Problem
 
-新しい知見を得たとき、保存先を誤ると2つの問題が起きる:
-- **新規スキル乱立**: 小さな知見ごとにファイルを作り、発見されないスキルが増える
-- **メモリ埋没**: 毎回適用すべきルールをメモリに書き、ワークフローに組み込まれない
+When you gain new knowledge, saving it to the wrong place causes two problems:
+- **New-skill sprawl**: creating a file for every small insight breeds skills that are never discovered
+- **Memory burial**: writing rules that should apply every time into memory keeps them out of the workflow
 
 ## Solution
 
-### デシジョンツリー
+### Decision tree
 
 ```
-新しい知見を得た
+Gained new knowledge
   |
-  +- Q1: 今後の作業で毎回参照すべきか？
-  |   +- No -> memory/ に保存（必要時のみ参照）
+  +- Q1: Should it be referenced every time in future work?
+  |   +- No -> save to memory/ (referenced only when needed)
   |   +- Yes ↓
   |
-  +- Q2: 既存スキルのスコープに収まるか？
-  |   +- Yes -> 既存スキルに追記（最優先）
+  +- Q2: Does it fit within the scope of an existing skill?
+  |   +- Yes -> append to the existing skill (top priority)
   |   +- No ↓
   |
-  +- Q3: 独立スキルに値する分量か？（ルール3つ以上、またはフローを含む）
-      +- Yes -> 新規スキル作成
-      +- No -> MEMORY.md に1-2行で記録
+  +- Q3: Is it substantial enough for a standalone skill? (3+ rules, or includes a workflow)
+      +- Yes -> create a new skill
+      +- No -> record 1-2 lines in MEMORY.md
 ```
 
-### 保存先マッピング
+### Placement mapping
 
-| 知見の性質 | 保存先 | 例 |
+| Nature of the knowledge | Destination | Example |
 |-----------|--------|-----|
-| 分析データ・比較表・テーマリスト | memory/ | バズパターン9分類、新記事テーマ5本 |
-| 行動ルール・チェックリスト・フロー | skills/（既存に追記） | タイトル設計7ルール → zenn-writer |
-| 新領域の体系的手法 | skills/（新規作成） | LLM-as-Judge 評価フレームワーク |
-| 小さな Gotcha・1文で済む教訓 | MEMORY.md | 「Zenn slug 不変のためリタイトルはリンク安全」 |
+| Analysis data, comparison tables, topic lists | memory/ | 9-category buzz-pattern taxonomy, 5 new article topics |
+| Behavioral rules, checklists, workflows | skills/ (append to existing) | 7 title-design rules → a writing skill |
+| Systematic methods for a new domain | skills/ (create new) | LLM-as-Judge evaluation framework |
+| Small gotchas, one-sentence lessons | MEMORY.md | "Zenn slugs are immutable, so retitling is link-safe" |
 
 ## Anti-Patterns
 
-- 「重要だからスキルにしよう」→ 10行未満の知見で新ファイルを作る（MEMORY.md で十分）
-- 「まとめてメモリに書こう」→ 行動ルールが参照コンテキストに埋もれる
-- 「既存スキルを汚したくない」→ スキルの価値は網羅性にある。追記は改善
+- "It's important, so make it a skill" → creating a new file for an insight under 10 lines (MEMORY.md suffices)
+- "Let's just batch it into memory" → behavioral rules get buried in reference context
+- "I don't want to pollute the existing skill" → a skill's value lies in comprehensiveness; appending is an improvement
 
 ## When to Use
 
-- /learn-eval の保存先判断時
-- 分析結果を永続化するとき
-- 「これスキルにすべき？メモリでいい？」と迷ったとき
+- When deciding the save location in /learn-eval
+- When persisting analysis results
+- When unsure: "should this be a skill, or is memory enough?"
