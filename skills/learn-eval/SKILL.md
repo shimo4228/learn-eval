@@ -1,6 +1,6 @@
 ---
 name: learn-eval
-description: "Extract reusable patterns from the session, self-evaluate quality before saving, and determine the right save location (Global vs Project)."
+description: "Extract a reusable pattern from the current session, judge it Save / Improve then Save / Absorb / Drop against a grounding checklist, and route every Save to a destination something actually reaches — absorbed into an existing skill / rule / doc section, or promoted to a real skill via skill-creator. Use when the user says 「今回の学びを残して」「learn-eval して」 or /learn-eval. There is no notes parking lot: if nothing would route to it, the verdict is Drop. NOT for mining past sessions (session-judgment-mining), auditing skills (skill-stocktake), or distilling rules (rules-distill)."
 compatibility: Developed and tested on Claude Code; portable to other Agent Skills-compatible agents.
 user-invocable: true
 origin: shimo4228
@@ -24,12 +24,26 @@ Look for:
 1. Review the session for extractable patterns
 2. Identify the most valuable/reusable insight
 
-3. **Determine save location:**
-   - Ask: "Would this pattern be useful in a different project?"
-   - **Global** (`~/.claude/skills/learned/`): general-purpose patterns useful across 2+ projects (bash compatibility, LLM API behavior, debugging techniques, etc.)
-   - **Project** (`.claude/skills/learned/` in current project): knowledge specific to this project (quirks of a particular config file, project-specific architecture decisions, etc.)
-   - When in doubt, choose Global (moving it into a project later is easier than the reverse)
-   - 正本: [`docs/adr/0025-global-vs-project-asset-placement.md`](../../docs/adr/0025-global-vs-project-asset-placement.md)。この節はその learned-skill 向け実例（旧正本の `rules/common/skills.md` は ADR-0035 の rules 縮退で origin schema のみに縮退した）
+3. **Determine the destination — there is no parking lot.**
+
+   `learned/` was retired on 2026-08-23 (ADR-0047). Every Save must land somewhere that
+   something actually routes to, so pick one of exactly two:
+
+   - **Absorb into an existing asset** — the pattern belongs inside a skill, rule, or
+     `hooks/README.md` section that already owns the topic. Name the file and the section.
+     This is the default: an addition to a reachable asset beats a new file.
+   - **Promote to a skill** — the pattern has its own independent trigger (a user request
+     that no installed skill answers). Run skill: **skill-creator** (required by
+     `rules/common/skills.md` before writing any skill).
+
+   If neither fits, the verdict is **Drop**, not "park it somewhere for now". A note that
+   nothing points at is reachable only by grep, and grep requires already knowing the
+   content exists — measured over 74 days, the retired `learned/` directory was read
+   during real work 12 times across 8 notes, while the audits that judged whether to keep
+   it accounted for 161 of its 184 reads.
+
+   Global vs project placement (once a destination type is chosen): 正本は
+   [`docs/adr/0025-global-vs-project-asset-placement.md`](../../docs/adr/0025-global-vs-project-asset-placement.md)。
 
 4. Draft the skill file using this format:
 
@@ -60,10 +74,72 @@ origin: auto-extracted
 
    #### 5a. Mandatory checklist (verify by actually reading the files)
 
-   Run **all** of the following before evaluating the draft:
+   **First, enumerate the overlap candidates — do not grep by hand.** The draft
+   from Step 4 is still in the conversation, not on disk, so **write it to a file
+   in this session's scratchpad directory with the Write tool** and pass that path:
 
-   - [ ] Grepped `~/.claude/skills/` for keywords and checked for content overlap
-   - [ ] Checked for overlap with MEMORY.md (project + global)
+   ```bash
+   uv run --project ~/.claude/skills/learn-eval \
+          --directory ~/.claude/skills/learn-eval \
+          python scripts/overlap_candidates.py \
+          --draft /path/to/scratch/learn-eval-draft.md --project "$PWD"
+   ```
+
+   Both arguments are load-bearing:
+
+   - **Write the draft to a file; never inline it into the command.** A
+     heredoc terminates on a line that matches its delimiter, and a draft is
+     arbitrary session-derived prose that may contain one — the rest of the
+     draft would then be read by the shell as commands, before any human gate.
+     `rules/common/security.md` treats a SKILL.md as a control program for
+     exactly this reason: a step that builds shell source out of untrusted text
+     is an injection path, not a formatting choice.
+   - **`--project "$PWD"` is required whenever `--directory` is.** `--directory`
+     makes the skill directory the process cwd, so the script's default
+     `--project .` would resolve to the skill's own directory and silently drop
+     the invoking repo's `MEMORY.md`. `$PWD` expands before uv changes
+     directory, so it still names the repo you are working in.
+
+   Evidence mode: JSON on stdout, exit 0 however many candidates (exit 2 only when
+   an input is unreadable). It enumerates; it never says "this is a duplicate".
+   `skill_candidates` ranks installed skills by how much of each **description**
+   the draft's terms cover (the description is what routes a future session, so a
+   body match would rank a skill nothing reaches); `memory_candidates` does the
+   same over MEMORY.md index lines — project **and** global — with line numbers.
+   Both report `shared_terms`, so a claim of overlap is checkable.
+
+   **Read the score, not the rank**, and read the two lists on different scales:
+
+   - `skill_candidates` — a description carries ~30 terms, so the score spreads.
+     Measured 2026-08-26 against the live 67-skill library: a draft whose
+     knowledge already had a home scored **0.600** against that skill and ≤0.143
+     against everything else; a genuinely new draft topped out at 0.100. Treat a
+     tight cluster below ~0.2 as "no candidate", not "five near-misses".
+   - `memory_candidates` — an index line carries 3–8 terms, so the score is noisy
+     and `shared_concepts` is the signal. **Concepts, not terms**: a Japanese
+     word of n characters produces n−1 matching bigrams, so counting raw terms
+     let one incidental katakana word outrank a real match. The script drops
+     anything sharing a single concept; what survives is worth reading.
+
+   **Before reading the candidates, check that the comparison actually ran.** Each
+   of these means part of the corpus was never compared, and "no overlap" would be
+   a false clean bill:
+
+   - `memory_files_unreadable` non-empty, or `memory_files_read` empty while
+     `memory_files_missing` is not → the memory half did not run. Name the file.
+   - `skills_unscannable` non-empty → those skills were not compared at all. The
+     one you cannot read is as likely to be the twin as any other.
+   - `skill_candidates_total` / `memory_candidates_total` above `top_n` → the list
+     was truncated; there are more candidates than you were shown.
+
+   (An empty draft exits 2 rather than reporting no candidates, so a truncated
+   Write fails loudly instead of certifying itself.)
+
+   Then run all of the following before evaluating the draft:
+
+   - [ ] Stated, per surviving candidate, whether it is really the same knowledge —
+     quoting its `shared_terms` or the cited MEMORY.md line. "Nothing survived the
+     floor and the top skill scored 0.09" is a valid answer; "I grepped" is not
    - [ ] Considered appending to an existing skill instead (see knowledge-placement-decision)
    - [ ] Confirmed the pattern is reusable, not a one-off fix
    - [ ] Checked the pattern against the **session's observational record** (actual tool output, errors, user corrections). Is it grounded in "what actually happened" rather than your own summary or paraphrase?
@@ -128,24 +204,32 @@ origin: auto-extracted
    - **Absorb into [X]**: present the target path + the content to add (as a diff) + checklist results + verdict rationale → append after `[y/n/skip]` confirmation
    - **Drop**: show the checklist results + reason only (no confirmation needed; stop)
 
-7. Save / Absorb to the determined location
+7. Save to the destination chosen in Step 3
 
-8. **Promotion check (after a Save only)**
+   - **Absorb**: edit the named asset in place and show the diff. Do not create a file.
+   - **Promote**: hand the draft to skill: **skill-creator** — it fixes the intent packet,
+     draws the boundary against neighbouring skills, structures it as
+     `~/.claude/skills/<name>/SKILL.md`, and passes it through a fresh-context draft gate
+     (learn-eval = extraction and Save/Drop judgment / skill-creator = shape, boundary and
+     gate — a deliberate role split).
 
-   `learned/` is a flat directory of `.md` files and does not participate in
-   `skills/<name>/SKILL.md`-style discovery. That means description-based automatic
-   triggering never fires — the file remains a passive reference note found only by
-   grep. After the save completes, ask the user exactly once:
+8. **Reachability check (after a Save only)**
 
-   - **Leave it in learned/** (default) — sufficient as reference material / a grep target. If the confirmation gets no response, choose this
-   - **Promote to an active skill** — when description-triggered automatic application should apply in future sessions. Run skill: **skill-creator** on the learned draft — it fixes the intent packet, draws the boundary against neighbouring skills, structures it as `~/.claude/skills/<name>/SKILL.md`, and passes it through a fresh-context draft gate (learn-eval = extraction and Save/Drop judgment / skill-creator = shape, boundary and gate — a deliberate role split). After promotion, delete the `learned/` file so nothing is managed twice
+   State in one line what will route to the saved content in a future session: the section
+   it now lives in, or the skill description that will select it. **If the honest answer is
+   "nothing — someone would have to grep for it", the Save was wrong**; go back to Step 3
+   and either absorb it into a reachable asset or Drop it.
 
 ## Output Format for Step 5
 
 ```
+### Overlap candidates (from scripts/overlap_candidates.py)
+- skills: 0.60 git-workflow [bash, c, cd, git, permission, status] → same knowledge, Absorb
+- memory: MEMORY.md:45 feedback_git_dash_c_over_cd, 4 shared terms → already recorded
+(or: top skill 0.10, nothing survived the memory floor — no real overlap)
+
 ### Checklist
-- [x] skills/ grep: no overlap (or overlap found → details)
-- [x] MEMORY.md: no overlap (or overlap found → details)
+- [x] Candidates judged one by one: (verdict per candidate, quoting shared terms)
 - [x] Append-to-existing considered: new file appropriate (or should append to [X])
 - [x] Reusability: confirmed (or one-off → Drop)
 
