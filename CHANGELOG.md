@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **No notes directory.** Saves no longer land in `~/.claude/skills/learned/` or `.claude/skills/learned/`. Step 3 now picks one of two destinations — absorb into an existing skill / rule / doc section, or promote to a skill through a skill-authoring skill — and anything that fits neither is a Drop. A reachability check (Step 8) follows every Save. Measured basis: 184 reads of the old notes between 2026-06-10 and 2026-08-23, 161 of them on six audit days and 12 during real work across 8 notes.
+- **Overlap check by script.** The hand grep for duplicates is replaced by `scripts/overlap_candidates.py` (run through `uv`), which enumerates installed skills by description coverage and MEMORY.md index lines, reports shared terms, and never issues a verdict.
+- **Draft-specific yes/no questions.** Step 5 adds 3–5 atomic, refutation-oriented questions per draft (ported from BinEval, arXiv:2606.27226); each No becomes an improvement item and answers are never aggregated into a score.
+- **README / README.ja / llms.txt / llms-full.txt rewritten to match the current SKILL.md.** They still described the retired save locations, a grep-based checklist, a Markdown-only layout, and a SkillsMP install that does not exist. Install now starts from `git clone` and states how the skill is invoked.
+
+### Removed
+
+- `skills/learn-eval/knowledge-placement-decision.md` — folded into `SKILL.md` Step 3.
+
+### Changed (earlier)
+
 - **Full English translation.** The skill body (SKILL.md) and the bundled `knowledge-placement-decision.md` are now written entirely in English (previously mixed JA/EN).
 - **Confirm-each flow in Step 6.** Candidates are now confirmed one at a time — evidence first, then `[y/n/skip]` — with bulk approval explicitly banned (design borrowed from config-gc). `n` discards, `skip` defers with a one-line reason.
 

@@ -4,53 +4,65 @@ Language: [English](README.md) | 日本語
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/learn-eval)
 
-Claude Code セッションから再利用可能なパターンを抽出し、品質を自己評価した上で、適切な保存先（Global / Project）を判断して保存する Agent Skill。
+Claude Code セッションから再利用可能なパターンを抽出し、その 1 件ずつを、セッションで実際に起きたことに照らして確かめ（接地チェックリスト）、将来のセッションが実際にたどり着く場所にだけ保存する Agent Skill です。保存先は、既存の skill・rule・ドキュメントの節への追記か、独立した skill への昇格のどちらかです。些末なもの、既にあるもの、そのどちらの保存先にも当てはまらないものは Drop と判定します。
+
+## ノート置き場を持たない理由
+
+以前の版は、パターンを 1 件ずつ `skills/learned/` 配下のノートとして保存していました。2026-06-10 から 2026-08-23 までの 74 日間で、このノート群が開かれたのは 184 回です（harness の利用ログに残った、エージェントによるファイル読み込みを 1 回と数えています）。そのうち 161 回は、ノートを残すかどうかを判定する監査 skill が走った 6 日間に集中していました。実際の作業が進んでいる repo の中で読まれたのは 12 回だけで、それも 8 件のノートに散らばっていました。作業中のセッションをノートへ導く経路は何も無かったので、ノートが見つかるのは、誰かが「あるはずだ」と思って検索したときだけです。12 回という数字は、それがどれほど稀だったかを示しています。このディレクトリは退役させ、いまは保存のたびに「何がそこへ導くのか」を名指しすることを求めています。
 
 ## インストール
 
-### Claude Code（手動）
-
 ```bash
-cp -r skills/learn-eval ~/.claude/skills/learn-eval
+git clone https://github.com/shimo4228/learn-eval.git
+cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval
 ```
 
-### SkillsMP
+品質ゲートの重複チェックは、同梱の Python スクリプトを [uv](https://docs.astral.sh/uv/) 経由で実行します。`uv` に PATH が通っている必要があります。
 
-近日対応予定。
+インストール後は、作業セッションの終わりに実行します。`/learn-eval` と入力するか、Claude Code に「今回の学びを残して」と頼んでください。
 
 ## 仕組み
 
-7ステップのプロセスで動作します:
+8 ステップのプロセスで動作します:
 
 1. **レビュー** — セッションから抽出可能なパターンを探す
-2. **特定** — 最も価値のある再利用可能な知見を選ぶ
-3. **保存先の判断** — Global（`~/.claude/skills/learned/`）はプロジェクト横断パターン、Project（`.claude/skills/learned/`）はプロジェクト固有の知見
-4. **ドラフト** — 標準フォーマットでスキルファイルを作成
-5. **品質ゲート** — チェックリスト + ホリスティック判定を実施
+2. **特定** — 最も価値があり再利用できる知見を選ぶ
+3. **保存先の決定** — 選択肢は 2 つだけです。そのトピックを既に持っている既存の skill・rule・ドキュメントの節へ**追記する**（既定）か、インストール済みのどの skill も受けない独立した発火条件を持つ場合に、独自の skill へ**昇格させる**か。どちらにも当てはまらなければ Drop
+4. **ドラフト** — 候補をスクラッチノートとして書く（name / description / Problem / Solution / When to Use）
+5. **品質ゲート** — 重複候補の列挙、チェックリスト、ドラフト固有の質問、最後にホリスティック判定を 1 つ
 6. **確認** — 候補を 1 件ずつ、証拠を提示してから `[y/n/skip]` で確認（一括承認はしない）
-7. **保存** — 決定した場所に保存、または既存スキルに追記
+7. **書き込み** — その場で追記して diff を見せる。または、形・境界・独自のドラフトゲートを受け持つ skill 作成用の skill にドラフトを渡す。著者の harness では [`skill-creator`](https://github.com/shimo4228/claude-harness/tree/main/skills/skill-creator) を使います。無い場合は [Agent Skills 仕様](https://agentskills.io/specification)に沿って `SKILL.md` を手で書いてください
+8. **到達可能性の確認** — 保存した内容へ将来のセッションを導くものは何かを 1 行で述べる。正直な答えが「誰かが grep するしかない」なら、その保存は誤りです。ステップ 3 に戻ります
 
 ## 品質ゲート
 
-すべての候補パターンは2段階の評価を通過します:
+すべての候補は 3 つの層を通ります。最初の 2 層は証拠を出すだけで、判定を出すのは 3 層目だけです。
 
-### チェックリスト（実際にファイルを読んで確認）
+### 1. 重複候補の列挙（スクリプト）
 
-- [ ] `~/.claude/skills/` 配下をキーワード grep し、内容重複を確認した
-- [ ] MEMORY.md（プロジェクト + グローバル）との重複を確認した
-- [ ] 既存スキルへの追記で済むか検討した
-- [ ] 一回限りの修正ではなく、再利用可能なパターンであることを確認した
+`scripts/overlap_candidates.py` はドラフトをファイルとして受け取り、重複しうるものを列挙します。インストール済みの skill は、各 skill の *description* をドラフトの語がどれだけ覆うかで順位づけします（将来のセッションを導くのは description だからです）。MEMORY.md の index 行は、プロジェクトとグローバルの両方を対象にします。出力は JSON で、候補ごとに共有語が付きます。スクリプトは「これは重複だ」とは言いません。その判断はモデル側に残します。読めなかったファイルはすべて一覧に出すので、読めていないファイルが黙って「重複なし」に数えられることはありません。
 
-### ホリスティック判定
+### 2. チェックリストとドラフト固有の質問
 
-チェックリストの結果に基づき、4つの Verdict のいずれかを発行します:
+- [ ] 残った重複候補を 1 件ずつ、共有語を引用して判定した
+- [ ] 既存 skill への追記を先に検討した
+- [ ] 一回限りの修正ではなく、再利用可能なパターンである
+- [ ] エージェント自身の要約ではなく、セッションの観測記録（ツール出力・エラー・ユーザーの訂正）に接地している
+
+そのうえで skill は、ドラフト固有の yes/no 質問を 3〜5 個作ります。1 問につき検証可能な主張を 1 つだけ問い、反証を探す形で書きます（例:「コード例は、書かれている環境でそのまま動くか」）。答えは Yes / No と 1 行の証拠です。これを足し合わせてスコアにすることはありません。
+
+### 3. ホリスティック判定
+
+チェックリスト・質問への答え・ドラフトをまとめて見て、Verdict を 1 つだけ出します。No だった質問は、判定の根拠として必ず列挙します:
 
 | Verdict | 意味 | 次のアクション |
 |---------|------|---------------|
-| **Save** | 独自・具体的・適切なスコープ | 保存へ進む |
-| **Improve then Save** | 価値はあるが要改善 | 改善点リスト → 修正 → 再判定（1回まで） |
-| **Absorb into [X]** | 既存スキルの一部として追記すべき | 追記先 + diff を提示して保存 |
-| **Drop** | 些末・冗長・抽象的 | 理由を説明して終了 |
+| **Save** | 単独で立つ。独自・具体的・適切なスコープで、インストール済みのどの skill も受けない発火条件を持つ | 確認のうえ、独自の skill へ昇格 |
+| **Improve then Save** | 価値はあるが要修正 | No の質問がそのまま改善項目。修正後、同じ質問で 1 回だけ再判定 |
+| **Absorb into [X]** | 既存の skill・rule・ドキュメントの節の中に置くべき | 追記先と diff を提示し、確認のうえ追記 |
+| **Drop** | 些末・冗長・抽象的、または到達不能 | 理由を説明して終了 |
+
+接地に関する質問が No なら、他がすべて Yes でも判定は Drop 側に倒します。
 
 ## 抽出対象
 
@@ -68,15 +80,21 @@ cp -r skills/learn-eval ~/.claude/skills/learn-eval
 
 ## 参考研究
 
-品質ゲートの **接地チェック (grounding check)** — 抽出した各パターンを、エージェント自身の要約ではなくセッションの観測記録（実際のツール出力・エラー・ユーザーの訂正）に照合する。純粋な自己評価ループは drift するため — は、2026 年の継続的スキル学習の研究に基づく:
+品質ゲートの**接地チェック (grounding check)** は、抽出した各パターンを、エージェント自身の要約ではなくセッションの観測記録（実際のツール出力・エラー・ユーザーの訂正）に照合します。自己評価だけで回るループは drift するためです。これは 2026 年の継続的スキル学習の研究に沿っています:
 
-- [SkillLearnBench: Benchmarking Continual Learning Methods for Agent Skill Generation on Real-World Tasks](https://arxiv.org/abs/2604.20087) (Zhong et al., 2026) — 自己フィードバックのみは *recursive drift（再帰的ドリフト）* を誘発し、外部フィードバックに接地した反復が真の改善を生む、と報告。
+- [SkillLearnBench: Benchmarking Continual Learning Methods for Agent Skill Generation on Real-World Tasks](https://arxiv.org/abs/2604.20087) (Zhong et al., 2026) は、自己フィードバックだけでは *recursive drift（再帰的ドリフト）* が起き、外部フィードバックに接地した反復が実際の改善を生むと報告しています。
 
-これは 1 つ上の層における model collapse の操作的対応物である（自己出力を再投入する生成プロセスは劣化する）。チェックリストは、抽出をエージェント自身の以前の言い回しではなく観測されたものへ再接地させる。
+skill ライブラリで起きる recursive drift は、モデルの学習について model collapse（[Shumailov et al., 2024](https://www.nature.com/articles/s41586-024-07566-y)）が述べるのと同じ失敗です。自己出力を再投入する生成プロセスは劣化します。接地チェックは、この教訓を一段上、つまりエージェントが自分の skill に書き込む内容に当てはめたものです。チェックリストは、抽出をエージェント自身の以前の言い回しではなく、観測されたものへ接地し直させます。
+
+**ドラフト固有の yes/no 質問**と、「No だった質問がそのまま改善項目になる」という規則は BinEval から移植したものです:
+
+- [Ask, Don't Judge: Binary Questions for Interpretable LLM Evaluation and Self-Improvement](https://arxiv.org/abs/2606.27226)。答えをスコアに集計しないという判断も、同論文が自ら述べる限界に従っています。ホリスティックな品質次元では、肯定された質問の割合は品質に線形に対応しません。
 
 ## このスキルについて
 
-このスキルは [Agent Knowledge Cycle (AKC)](https://github.com/shimo4228/agent-knowledge-cycle) の **Extract** フェーズを実装する — エージェント行動とオペレーターの判断が共発展する 6 フェーズ双方向成長ループ ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726))。AKC は [@shimo4228](https://github.com/shimo4228) の 3 つの研究ラインの 1 つで、他に [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)) — 4 つの contemplative 公理に基づく自律エージェント — と [Agent Attribution Practice (AAP)](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013)) — 自律 AI エージェントの責任分配に関するハーネス中立 ADR — がある。
+このスキルは [Agent Knowledge Cycle (AKC)](https://github.com/shimo4228/agent-knowledge-cycle) の **Extract** フェーズを実装しています。AKC は、エージェントの行動とオペレーターの判断が共発展する 6 フェーズの双方向成長ループです ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726))。
+
+[@shimo4228](https://github.com/shimo4228) の関連研究: [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118))、[Agent Attribution Practice](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))。
 
 ## ライセンス
 

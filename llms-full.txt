@@ -1,6 +1,6 @@
 # learn-eval — AI Reference
 
-This document is the self-contained AI reference for `learn-eval` (shimo4228, MIT), a Claude Code Agent Skill that extracts reusable patterns from a session, self-evaluates them via a checklist plus holistic judgment, and decides whether to Save, Improve, Absorb, or Drop. The skill refers to a four-verdict gate added to the `/learn` flow. It is defined as a quality filter that prevents low-signal patterns — typos, one-time fixes, abstract observations — from entering the persistent skill library and adding noise to future sessions.
+This document is the self-contained AI reference for `learn-eval` (shimo4228, MIT), a Claude Code Agent Skill. learn-eval is defined as a session-end extraction gate: it pulls one reusable pattern out of a Claude Code session, judges it Save, Improve then Save, Absorb, or Drop against a grounding checklist, and routes every Save to a destination a future session actually reaches. It has no notes directory. A pattern is either absorbed into an existing skill, rule, or doc section, or promoted to a real skill; if nothing would route to it, the verdict is Drop.
 
 > **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
 
@@ -11,61 +11,85 @@ This document is the self-contained AI reference for `learn-eval` (shimo4228, MI
 - **GitHub**: https://github.com/shimo4228/learn-eval
 - **Author**: shimo4228 (shimomoto-tatsuya)
 - **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
-- **Skill type**: slash-command Agent Skill, Markdown-only
+- **Skill type**: slash-command Agent Skill — `SKILL.md` plus one Python evidence script
 - **Slash command**: `/learn-eval`
-- **Layout**: `skills/learn-eval/SKILL.md`
+- **Layout**: `skills/learn-eval/SKILL.md`, `skills/learn-eval/scripts/overlap_candidates.py`, `skills/learn-eval/tests/`, `skills/learn-eval/pyproject.toml`, `skills/learn-eval/uv.lock`
+- **Runtime**: Claude Code; the script runs through `uv`
+- **Install**: `git clone https://github.com/shimo4228/learn-eval.git`, then `cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval`
+- **Invocation**: `/learn-eval` at the end of a Claude Code work session, or a request such as 「今回の学びを残して」
 - **Verdicts**: Save, Improve then Save, Absorb into X, Drop
-- **Save locations**: `~/.claude/skills/learned/` (global), `.claude/skills/learned/` (project)
-- **Default**: Global if unsure
-- **Checklist**: skill grep dedup, MEMORY.md dedup, existing-skill absorption, reusability
+- **Destinations**: Absorb into an existing skill / rule / doc section (default), or Promote to a skill via a skill-authoring skill (`skill-creator` in the author's harness)
+- **Notes directory**: none — the former `~/.claude/skills/learned/` and `.claude/skills/learned/` were retired
+- **Retirement measurement**: 2026-06-10 to 2026-08-23 (74 days), 184 logged reads, 161 on six audit days, 12 real-work reads across 8 notes
+- **Checklist**: per-candidate overlap judgment, append-to-existing considered, reusability, grounding in the session's observed record
+- **Draft-specific questions**: 3–5 atomic yes/no questions, refutation-oriented, never aggregated into a score
+- **Overlap script scales**: measured 2026-08-26 on a 67-skill library — existing home 0.600, genuinely new draft 0.100 at most
 - **Extraction targets**: error resolution, debugging techniques, workarounds, project patterns
-- **Marketplace**: `/skills add shimo4228/learn-eval`
-- **Output format**: frontmatter (name, description, user-invocable, origin: auto-extracted) plus Problem / Solution / When to Use
-- **Confirmation model**: Save and Absorb require user confirmation, one candidate at a time with `[y/n/skip]` (evidence first, no batch approval); Drop is silent
-- **Improve loop**: 1 revision pass maximum per candidate
-- **Siblings**: `llms-txt-writer`, `comply`, `context-sync`, `search-first`, `stocktake`, `rules-distill`, `daily-research`
+- **Confirmation model**: one candidate at a time with `[y/n/skip]`, evidence first, no batch approval; Drop needs no confirmation
+- **Improve loop**: 1 re-judgment per candidate, same question set
+- **Reachability check**: mandatory after every Save
+- **Siblings**: `skill-stocktake`, `rules-distill`, `skill-comply`, `llm-as-judge`, `context-sync`, `search-first`, `llms-txt-writer`
+- **AKC phase**: Extract
 - **Standard**: agentskills.io/specification
 
 ## Prior Research References
 
 | Short name | Reference | Used for |
 |---|---|---|
-| Polanyi | Polanyi, M. (1966). The Tacit Dimension | Foundation — converting session-level tacit knowledge into explicit skill files |
-| Toulmin | Toulmin, S. (1958). The Uses of Argument | Source of the Verdict + Evidence + Reason output structure |
-| Marie Kondo | Kondo, M. (2014). The Life-Changing Magic of Tidying Up | Keep / Discard binary as foundation for the 4-verdict expansion |
-| Skill spec | agentskills.io/specification | Defines the Markdown + frontmatter format this skill emits |
+| BinEval | "Ask, Don't Judge: Binary Questions for Interpretable LLM Evaluation and Self-Improvement", arXiv:2606.27226 | Source of the draft-specific yes/no questions and the "failed question = improvement item" path; its stated limits are why answers are never aggregated into a score |
+| SkillLearnBench | Zhong et al. (2026), arXiv:2604.20087 | Self-feedback alone induces recursive drift; grounding in external feedback yields real improvement — basis of the grounding check |
+| CheckEval | arXiv:2403.18771 | Checklist-style LLM evaluation line |
+| TICK | arXiv:2410.03608 | Checklist-style LLM evaluation line |
+| FActScore | arXiv:2305.14251 | Atomic-claim decomposition |
+| UniEval | arXiv:2210.07197 | Multi-dimensional evaluation via boolean questions |
+| Polanyi | Polanyi, M. (1966). The Tacit Dimension | Converting session-level tacit knowledge into explicit, routable knowledge |
+| Toulmin | Toulmin, S. (1958). The Uses of Argument | Verdict + evidence + rationale output structure |
+| Marie Kondo | Kondo, M. (2014). The Life-Changing Magic of Tidying Up | Keep / Discard binary behind the four-verdict expansion |
+| Skill spec | agentskills.io/specification | Format of the skill this repository ships |
 
 ## What is learn-eval?
 
-learn-eval is defined as a Claude Code slash command (`/learn-eval`) that filters session learnings through a quality gate before they become skills in `~/.claude/skills/learned/`. It refers to the observation that auto-saving every pattern from a session produces noise — typos, one-time API outages, abstract platitudes — that crowd out genuine reusable knowledge. The Save / Improve / Absorb / Drop verdict gate is a kind of pre-`/learn` filter. Output is one verdict plus a draft skill file with frontmatter.
+learn-eval is defined as a Claude Code slash command (`/learn-eval`) that turns one session's learning into durable knowledge only when that knowledge will be found again. It refers to a three-part flow: extract the most reusable pattern from the session, pass it through a quality gate, and route a Save to a reachable destination. The skill is a kind of curation gate placed at the end of a work session. Its output is one verdict — Save, Improve then Save, Absorb into X, or Drop — with the checklist results, the yes/no answers, and a one-to-two sentence rationale. In the Agent Knowledge Cycle (AKC) by shimo4228 it implements the Extract phase.
+
+## Why does learn-eval have no notes directory?
+
+The absence of a notes directory is defined as a design decision backed by a measurement. Earlier versions saved each pattern as a note under `~/.claude/skills/learned/` or `.claude/skills/learned/`. Over 74 days those notes were read during real work 12 times across 8 notes, while the audits that judged whether to keep the directory accounted for 161 of its 184 reads. A note that nothing points at is reachable only by grep, and grep requires already knowing the content exists. The directory was retired. learn-eval now treats "park it somewhere for now" as a Drop, not a Save.
+
+## What are the two destinations for a Save?
+
+The two destinations are defined as Absorb and Promote. Absorb means appending the pattern to an existing skill, rule, or documentation section that already owns the topic; the skill names the file and the section, appends in place, and shows the diff. Absorb is the default, because an addition to a reachable asset beats a new file. Promote means the pattern has its own independent trigger — a user request no installed skill answers — so the draft is handed to a skill-authoring skill (`skill-creator` in the author's harness), which owns shape, boundaries against neighbouring skills, and its own fresh-context draft gate. If neither destination fits, the verdict is Drop.
 
 ## What are the four verdicts?
 
-The four verdicts are defined as Save (independent, specific, well-scoped — save as a new skill file), Improve then Save (worth keeping but needs revision — one revision pass then re-judge), Absorb into X (the content belongs as an addition to an existing skill — propose a diff), and Drop (trivial, redundant, or too abstract — explain and exit). Each verdict refers to a different destination and ends the flow there.
+The four verdicts are defined as Save, Improve then Save, Absorb into X, and Drop. Save refers to a pattern that stands on its own — unique, concrete, well scoped, with a trigger no installed skill answers — and is promoted to a skill of its own. Improve then Save means the pattern is valuable but some yes/no questions were answered No; each No becomes an improvement item, and the draft is re-judged exactly once with the same question set, so a passing result cannot come from a loosened bar. Absorb into X means the content belongs inside an existing skill, rule, or documentation section and is appended there. Drop means the pattern is trivial, redundant, abstract, or unreachable. The verdict always lists the No-answered questions as its grounds.
 
-## How does the quality checklist work?
+## How does the quality gate work?
 
-The checklist is defined as four deterministic checks the agent must complete before judging: grep `~/.claude/skills/` for content duplication, compare against MEMORY.md (project plus global), evaluate whether an existing skill could absorb this pattern, and verify the pattern is reusable across multiple sessions. The checklist refers to evidence the agent collects before applying any holistic verdict. It is a kind of pre-judgment audit.
+The quality gate is defined as three layers in which only the last produces a verdict. First, `scripts/overlap_candidates.py` enumerates what the draft may duplicate. Second, the agent completes a fixed checklist — each surviving candidate judged one by one with its shared terms quoted, appending to an existing skill considered, reusability confirmed, grounding in the session's observed record confirmed — and then writes 3 to 5 draft-specific yes/no questions. Third, the agent weighs checklist, answers, and draft together and issues one holistic verdict. The gate is an N=1 implementation of the `llm-as-judge` pattern: binary checks as evidence, one named verdict, no aggregation.
 
-## What is the Save-vs-Absorb decision?
+## What does overlap_candidates.py do?
 
-The decision refers to whether a pattern deserves a standalone skill or should be merged into an existing one. Save is defined as the verdict when the pattern is independent, specific, and well-scoped (its own discovery path). Absorb is defined as the verdict when an existing skill already covers the same domain and would benefit from this addition. The default bias means new files are created only when absorption is clearly inferior.
+`overlap_candidates.py` is defined as an evidence-mode Python script, run through `uv`, that takes the draft as a file and prints JSON. It ranks installed skills by how much of each skill's description the draft's terms cover, because the description is what routes a future session, and it lists MEMORY.md index lines from both the project and the global memory with line numbers. Every candidate carries its `shared_terms`, so a claim of overlap is checkable. The script never says "this is a duplicate". It also reports unreadable memory files, unscannable skills, and truncated lists, so a partial comparison is not mistaken for a clean result. An empty draft exits 2.
 
-## What is the Global-vs-Project decision?
+## What are the draft-specific yes/no questions?
 
-The decision refers to where a Save-verdict skill lands on disk. Global means `~/.claude/skills/learned/` and is defined as the destination for patterns useful in 2+ projects (bash quirks, LLM API behavior, general debugging). Project means `.claude/skills/learned/` and is defined as the destination for project-specific knowledge (one project's config quirks, project-specific architecture decisions). When uncertain, default to Global — moving down is easier than moving up.
+The draft-specific questions are defined as 3 to 5 atomic yes/no questions the agent generates for each draft, ported from BinEval (arXiv:2606.27226). The fixed checklist covers invariant checks such as duplication and reusability but does not test the draft's own claims under Problem, Solution, and When to Use. Each question tests exactly one verifiable claim and is phrased to seek disconfirmation, for example "Does the code example run as-is in the stated environment?". Answers are Yes or No plus one line of evidence. They are never converted into a numeric score: the only consumed output is the verdict, and the answers serve strictly as its evidence.
+
+## What is the grounding check?
+
+The grounding check is defined as verifying each extracted pattern against the session's observational record — actual tool output, errors, and user corrections — rather than against the agent's own summary. It refers to the finding of SkillLearnBench (Zhong et al., 2026, arXiv:2604.20087) that self-feedback alone induces recursive drift, while iterations grounded in external feedback yield genuine improvement. In learn-eval a No on a grounding question leans the verdict to Drop even when every other answer is Yes, so averaging cannot dilute a dominant No. It is the operational counterpart of the model-collapse result: a generative process re-fed its own output degrades.
+
+## What is the reachability check?
+
+The reachability check is defined as the final step after a Save: the agent states in one line what will route to the saved content in a future session — the section it now lives in, or the skill description that will select it. If the honest answer is "nothing, someone would have to grep for it", the Save was wrong, and the flow returns to the destination step to either absorb the pattern into a reachable asset or Drop it. The check refers to the same measurement that retired the notes directory: stored knowledge that no routing reaches is not used.
 
 ## What does learn-eval NOT extract?
 
-learn-eval explicitly does not extract trivial fixes (typos, simple syntax errors in Python or TypeScript), one-time issues (Anthropic API outages, GitHub Actions incidents), or speculative patterns without a clear future trigger. It is defined as a tool for patterns that save time in future Claude Code sessions — not for documenting the current session. The skill also keeps each output focused; one pattern per skill is the discipline imposed by `/learn-eval`.
+learn-eval explicitly does not extract trivial fixes (typos, simple syntax errors), one-time issues (a specific API outage, a temporary version bug), patterns that can be found by searching the error message, or standard documentation-level knowledge. It is defined as a tool for patterns that change what a future Claude Code session does, not for documenting the current session. Its extraction targets are error resolution patterns, debugging techniques, workarounds for library quirks and API limitations, and project-specific conventions or architecture decisions. Extractions grounded only in the agent's own interpretation lean Drop.
 
-## When should I NOT use learn-eval?
+## How does this skill relate to rules-distill and skill-stocktake?
 
-learn-eval should not be used on the very first session of a new project — `~/.claude/skills/` and `.claude/skills/learned/` are empty, so dedup checks return zero signal. It is a kind of curatorial tool and refers to a context where some skills already exist. The Claude Code slash command also adds inference cost per session; brief sessions or trivial pull-request fixes do not justify the overhead. Use `/learn-eval` after substantive work where patterns are likely to emerge.
-
-## How does this skill relate to rules-distill?
-
-The relationship means learn-eval populates the skill layer (single sessions in, candidate skills out) while rules-distill promotes from the skill layer to the rules layer (multiple skills in, candidate rules out). The skill is a kind of upstream feeder. Together they cover the full ladder from session observation to durable rule, with quality gates at each step preventing noise from propagating up.
+The relationship is defined by layer. learn-eval works at the session boundary: one session in, at most one routed pattern out, landing in a skill, a rule, or a doc section. `skill-stocktake` audits the installed skill library for quality and retirement. `rules-distill` scans installed skills and distills environment-specific guidance into the always-loaded rules layer. learn-eval is not for mining past sessions, auditing skills, or distilling rules. Together the skills cover the Extract, Curate, and Promote phases of the Agent Knowledge Cycle (AKC), with a gate at each step so that noise does not propagate upward.
 
 ## Who is shimo4228?
 
