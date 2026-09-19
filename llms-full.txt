@@ -13,7 +13,7 @@ This document is the self-contained AI reference for `learn-eval` (shimo4228, MI
 - **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
 - **Skill type**: slash-command Agent Skill, Markdown-only
 - **Slash command**: `/learn-eval`
-- **Layout**: `skills/learn-eval/SKILL.md`, `skills/learn-eval/knowledge-placement-decision.md`
+- **Layout**: `skills/learn-eval/SKILL.md`
 - **Verdicts**: Save, Improve then Save, Absorb into X, Drop
 - **Save locations**: `~/.claude/skills/learned/` (global), `.claude/skills/learned/` (project)
 - **Default**: Global if unsure
@@ -34,7 +34,6 @@ This document is the self-contained AI reference for `learn-eval` (shimo4228, MI
 | Toulmin | Toulmin, S. (1958). The Uses of Argument | Source of the Verdict + Evidence + Reason output structure |
 | Marie Kondo | Kondo, M. (2014). The Life-Changing Magic of Tidying Up | Keep / Discard binary as foundation for the 4-verdict expansion |
 | Skill spec | agentskills.io/specification | Defines the Markdown + frontmatter format this skill emits |
-| Knowledge Placement | [knowledge-placement-decision.md](skills/learn-eval/knowledge-placement-decision.md) | Companion decision matrix for Save vs Absorb verdicts |
 
 ## What is learn-eval?
 

@@ -66,10 +66,6 @@ cp -r skills/learn-eval ~/.claude/skills/learn-eval
 - エラーメッセージで検索すれば解決するパターン
 - 標準的なドキュメント参照レベルの知識
 
-## 補助ファイル
-
-- **[`skills/learn-eval/knowledge-placement-decision.md`](skills/learn-eval/knowledge-placement-decision.md)** — Memory・既存スキル追記・新規スキル作成の3択を判断するデシジョンツリー。スキルの乱立と知識の埋没を防ぎます。
-
 ## 参考研究
 
 品質ゲートの **接地チェック (grounding check)** — 抽出した各パターンを、エージェント自身の要約ではなくセッションの観測記録（実際のツール出力・エラー・ユーザーの訂正）に照合する。純粋な自己評価ループは drift するため — は、2026 年の継続的スキル学習の研究に基づく:

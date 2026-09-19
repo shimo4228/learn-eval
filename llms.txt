@@ -13,7 +13,6 @@
 - 4 verdicts: **Save** (independent, specific, well-scoped), **Improve then Save** (worth keeping but needs revision), **Absorb into [X]** (existing skill should host this content), **Drop** (trivial, redundant, or abstract)
 - Quality gate: deterministic checklist (skill grep, MEMORY.md dedup, existing-skill check, reusability) + holistic verdict
 - Save locations: `~/.claude/skills/learned/` (global, cross-project) or `.claude/skills/learned/` (project-local); default to global when unsure
-- Companion file: [skills/learn-eval/knowledge-placement-decision.md](skills/learn-eval/knowledge-placement-decision.md)
 
 ## Standard reference
 

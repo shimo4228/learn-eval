@@ -66,10 +66,6 @@ Based on the checklist results, one of four verdicts is issued:
 - Patterns that can be found by searching the error message
 - Standard documentation-level knowledge
 
-## Supporting Files
-
-- **[`skills/learn-eval/knowledge-placement-decision.md`](skills/learn-eval/knowledge-placement-decision.md)** — A decision tree for choosing between Memory, existing skill append, and new skill creation. Prevents skill sprawl and knowledge burial.
-
 ## References
 
 The **grounding check** in the quality gate — verify each extracted pattern against the session's observed record (actual tool output, errors, user corrections) rather than the agent's own summary, because a purely self-evaluating loop drifts — is grounded in 2026 work on continual skill learning:
