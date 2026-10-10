@@ -1,6 +1,8 @@
 # learn-eval
 
-> A Claude Code Agent Skill (MIT) that extracts a reusable pattern from a session, judges it Save / Improve then Save / Absorb / Drop against a grounding checklist, and routes every Save to a destination a future session actually reaches — absorbed into an existing skill, rule, or doc section, or promoted to a real skill. There is no notes directory: if nothing would route to the pattern, the verdict is Drop.
+> A Claude Code Agent Skill (MIT) that extracts reusable patterns from a session, judges each one Save / Improve then Save / Absorb / Drop against a grounding checklist, and routes every kept pattern to a destination a future session actually reaches — absorbed into an existing skill, rule, or `hooks/README.md` section, or promoted to a real skill. There is no notes directory: if nothing would route to a pattern, its verdict is Drop.
+
+Status: active, synced one way from the author's Claude Code harness by `scripts/sync-from-local.sh`, and also shipped in the [akc-cycle](https://github.com/shimo4228/akc-cycle) plugin, so this repository can trail the plugin between syncs. Requirements: Claude Code and `uv` on PATH (the overlap script needs Python 3.11+, standard library only); no paid key.
 
 ## Core documentation
 
@@ -8,10 +10,11 @@
 - [README.md](README.md) / [README.ja.md](README.ja.md): human-facing narrative (English + Japanese)
 - [SKILL.md](skills/learn-eval/SKILL.md): full skill specification — what to extract, the two destinations, the quality gate, the verdict flow, the reachability check
 - [overlap_candidates.py](skills/learn-eval/scripts/overlap_candidates.py): evidence script that enumerates installed skills and MEMORY.md lines a draft may duplicate (JSON, no verdict)
+- [akc-cycle](https://github.com/shimo4228/akc-cycle): Claude Code plugin that installs this skill as `/akc-cycle:learn-eval` together with `skill-creator` and the rest of the Agent Knowledge Cycle
 
 ## Architecture
 
-- Two destinations, no parking lot: **Absorb** into an existing skill / rule / doc section that owns the topic (default), or **Promote** to a skill with its own trigger via a skill-authoring skill (`skill-creator` in the author's harness). Neither fits → Drop
+- Two destinations, no parking lot: **Absorb** into an existing skill / rule / `hooks/README.md` section that owns the topic (default), or **Promote** to a skill with its own trigger via `skill-creator`. Neither fits → Drop
 - Quality gate in three layers: overlap candidates from `overlap_candidates.py` (run through `uv`) → fixed checklist plus 3–5 draft-specific yes/no questions (no score aggregation) → one holistic verdict that lists every No as grounds
 - 4 verdicts: **Save** (stands on its own → promote to a skill), **Improve then Save** (each No becomes an improvement item; one re-judgment with the same questions), **Absorb into [X]** (belongs inside an existing asset → append), **Drop**
 - Confirmation one candidate at a time with `[y/n/skip]`, evidence first, never batch approval
@@ -31,3 +34,5 @@
 - [context-sync](https://github.com/shimo4228/context-sync): audits and fixes project documentation roles
 - [search-first](https://github.com/shimo4228/search-first): look outside before deciding — returns a report the caller picks from
 - [llms-txt-writer](https://github.com/shimo4228/llms-txt-writer): writes AI-facing docs such as this file
+- [Agent Knowledge Cycle](https://github.com/shimo4228/agent-knowledge-cycle): the six-phase, human-gated cycle whose Extract phase this skill implements (concept DOI 10.5281/zenodo.19200726)
+- [shimo4228](https://github.com/shimo4228/shimo4228): the author's hub — five practice lines and their concept DOIs
