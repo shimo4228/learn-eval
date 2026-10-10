@@ -1,6 +1,6 @@
 # learn-eval — AI Reference
 
-This document is the self-contained AI reference for `learn-eval` (shimo4228, MIT), a Claude Code Agent Skill. learn-eval is defined as a session-end extraction gate: it pulls one reusable pattern out of a Claude Code session, judges it Save, Improve then Save, Absorb, or Drop against a grounding checklist, and routes every Save to a destination a future session actually reaches. It has no notes directory. A pattern is either absorbed into an existing skill, rule, or doc section, or promoted to a real skill; if nothing would route to it, the verdict is Drop.
+This document is the self-contained AI reference for `learn-eval` (shimo4228, MIT), a Claude Code Agent Skill. learn-eval is defined as a session-end extraction gate: it pulls reusable patterns out of a Claude Code session, judges each one Save, Improve then Save, Absorb, or Drop against a grounding checklist, and routes every kept pattern to a destination a future session actually reaches. It has no notes directory. A pattern is either absorbed into an existing skill, rule, or `hooks/README.md` section, or promoted to a real skill; if nothing would route to it, the verdict is Drop.
 
 > **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
 
@@ -10,15 +10,17 @@ This document is the self-contained AI reference for `learn-eval` (shimo4228, MI
 - **License**: MIT
 - **GitHub**: https://github.com/shimo4228/learn-eval
 - **Author**: shimo4228 (shimomoto-tatsuya)
-- **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
+- **Author hub**: https://github.com/shimo4228/shimo4228 — five practice lines and their concept DOIs; this skill belongs to [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)); other lines include [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)) and [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
 - **Skill type**: slash-command Agent Skill — `SKILL.md` plus one Python evidence script
 - **Slash command**: `/learn-eval`
 - **Layout**: `skills/learn-eval/SKILL.md`, `skills/learn-eval/scripts/overlap_candidates.py`, `skills/learn-eval/tests/`, `skills/learn-eval/pyproject.toml`, `skills/learn-eval/uv.lock`
-- **Runtime**: Claude Code; the script runs through `uv`
-- **Install**: `git clone https://github.com/shimo4228/learn-eval.git`, then `cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval`
-- **Invocation**: `/learn-eval` at the end of a Claude Code work session, or a request such as 「今回の学びを残して」
+- **Runtime**: Claude Code; the script runs through `uv` (Python 3.11+, standard library only, bundled `uv.lock`); no paid key
+- **Status**: active, synced one way from the author's Claude Code harness by `scripts/sync-from-local.sh`; also shipped in the akc-cycle plugin, so this repository can trail the plugin between syncs
+- **Install (clone)**: `git clone https://github.com/shimo4228/learn-eval.git`, then `mkdir -p ~/.claude/skills` and `cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval` (keep the folder at that path; `skill-creator` is not included)
+- **Install (plugin)**: `/plugin marketplace add shimo4228/akc-cycle`, then `/plugin install akc-cycle@akc-cycle` — the skill runs as `/akc-cycle:learn-eval`, with `skill-creator` and the rest of AKC
+- **Invocation**: `/learn-eval` (clone) or `/akc-cycle:learn-eval` (plugin) at the end of a Claude Code work session, or a request such as 「今回の学びを残して」
 - **Verdicts**: Save, Improve then Save, Absorb into X, Drop
-- **Destinations**: Absorb into an existing skill / rule / doc section (default), or Promote to a skill via a skill-authoring skill (`skill-creator` in the author's harness)
+- **Destinations**: Absorb into an existing skill / rule / `hooks/README.md` section (default), or Promote to a skill via `skill-creator`
 - **Notes directory**: none — the former `~/.claude/skills/learned/` and `.claude/skills/learned/` were retired
 - **Retirement measurement**: 2026-06-10 to 2026-08-23 (74 days), 184 logged reads, 161 on six audit days, 12 real-work reads across 8 notes
 - **Checklist**: per-candidate overlap judgment, append-to-existing considered, reusability, grounding in the session's observed record
@@ -43,6 +45,7 @@ This document is the self-contained AI reference for `learn-eval` (shimo4228, MI
 | FActScore | arXiv:2305.14251 | Atomic-claim decomposition |
 | UniEval | arXiv:2210.07197 | Multi-dimensional evaluation via boolean questions |
 | Polanyi | Polanyi, M. (1966). The Tacit Dimension | Converting session-level tacit knowledge into explicit, routable knowledge |
+| Model collapse | Shumailov et al. (2024), Nature, doi:10.1038/s41586-024-07566-y | A generative process re-fed its own output degrades; the grounding check applies this one level up |
 | Toulmin | Toulmin, S. (1958). The Uses of Argument | Verdict + evidence + rationale output structure |
 | Marie Kondo | Kondo, M. (2014). The Life-Changing Magic of Tidying Up | Keep / Discard binary behind the four-verdict expansion |
 | Skill spec | agentskills.io/specification | Format of the skill this repository ships |
@@ -57,11 +60,11 @@ The absence of a notes directory is defined as a design decision backed by a mea
 
 ## What are the two destinations for a Save?
 
-The two destinations are defined as Absorb and Promote. Absorb means appending the pattern to an existing skill, rule, or documentation section that already owns the topic; the skill names the file and the section, appends in place, and shows the diff. Absorb is the default, because an addition to a reachable asset beats a new file. Promote means the pattern has its own independent trigger — a user request no installed skill answers — so the draft is handed to a skill-authoring skill (`skill-creator` in the author's harness), which owns shape, boundaries against neighbouring skills, and its own fresh-context draft gate. If neither destination fits, the verdict is Drop.
+The two destinations are defined as Absorb and Promote. Absorb means appending the pattern to an existing skill, rule, or `hooks/README.md` section that already owns the topic; the skill names the file and the section, appends in place, and shows the diff. Absorb is the default, because an addition to a reachable asset beats a new file. Promote means the pattern has its own independent trigger — a user request no installed skill answers — so the draft is handed to `skill-creator`, which owns shape, boundaries against neighbouring skills, and its own fresh-context draft gate. If neither destination fits, the verdict is Drop.
 
 ## What are the four verdicts?
 
-The four verdicts are defined as Save, Improve then Save, Absorb into X, and Drop. Save refers to a pattern that stands on its own — unique, concrete, well scoped, with a trigger no installed skill answers — and is promoted to a skill of its own. Improve then Save means the pattern is valuable but some yes/no questions were answered No; each No becomes an improvement item, and the draft is re-judged exactly once with the same question set, so a passing result cannot come from a loosened bar. Absorb into X means the content belongs inside an existing skill, rule, or documentation section and is appended there. Drop means the pattern is trivial, redundant, abstract, or unreachable. The verdict always lists the No-answered questions as its grounds.
+The four verdicts are defined as Save, Improve then Save, Absorb into X, and Drop. Save refers to a pattern that stands on its own — unique, concrete, well scoped, with a trigger no installed skill answers — and is promoted to a skill of its own. Improve then Save means the pattern is valuable but some yes/no questions were answered No; each No becomes an improvement item, and the draft is re-judged exactly once with the same question set, so a passing result cannot come from a loosened bar. Absorb into X means the content belongs inside an existing skill, rule, or `hooks/README.md` section and is appended there. Drop means the pattern is trivial, redundant, abstract, or unreachable. The verdict always lists the No-answered questions as its grounds.
 
 ## How does the quality gate work?
 
@@ -85,12 +88,12 @@ The reachability check is defined as the final step after a Save: the agent stat
 
 ## What does learn-eval NOT extract?
 
-learn-eval explicitly does not extract trivial fixes (typos, simple syntax errors), one-time issues (a specific API outage, a temporary version bug), patterns that can be found by searching the error message, or standard documentation-level knowledge. It is defined as a tool for patterns that change what a future Claude Code session does, not for documenting the current session. Its extraction targets are error resolution patterns, debugging techniques, workarounds for library quirks and API limitations, and project-specific conventions or architecture decisions. Extractions grounded only in the agent's own interpretation lean Drop.
+learn-eval explicitly does not extract trivial fixes (typos, simple syntax errors), which are a Drop, or one-time issues (a specific API outage, a temporary version bug), because the checklist requires a reusable pattern rather than a one-off fix. It is defined as a tool for patterns that change what a future Claude Code session does, not for documenting the current session. Its extraction targets are error resolution patterns, debugging techniques, workarounds for library quirks and API limitations, and project-specific conventions or architecture decisions. Extractions grounded only in the agent's own interpretation lean Drop.
 
 ## How does this skill relate to rules-distill and skill-stocktake?
 
-The relationship is defined by layer. learn-eval works at the session boundary: one session in, at most one routed pattern out, landing in a skill, a rule, or a doc section. `skill-stocktake` audits the installed skill library for quality and retirement. `rules-distill` scans installed skills and distills environment-specific guidance into the always-loaded rules layer. learn-eval is not for mining past sessions, auditing skills, or distilling rules. Together the skills cover the Extract, Curate, and Promote phases of the Agent Knowledge Cycle (AKC), with a gate at each step so that noise does not propagate upward.
+The relationship is defined by layer. learn-eval works at the session boundary: one session in, each kept pattern confirmed one at a time and routed to a skill, a rule, or a `hooks/README.md` section. `skill-stocktake` audits the installed skill library for quality and retirement. `rules-distill` scans installed skills and distills environment-specific guidance into the always-loaded rules layer. learn-eval is not for mining past sessions, auditing skills, or distilling rules. Together the skills cover the Extract, Curate, and Promote phases of the Agent Knowledge Cycle (AKC), with a gate at each step so that noise does not propagate upward.
 
 ## Who is shimo4228?
 
-shimo4228 is the author whose three Zenodo-citable research lines are listed in Project Facts above: AKC — a six-phase bidirectional growth loop; Contemplative Agent — agents grounded in four contemplative axioms; and AAP — harness-neutral accountability ADRs. This skill is defined as scaffolding for the **Extract** phase of AKC.
+shimo4228 is the author of five practice lines — long-running, independently citable projects — gathered with their concept DOIs at the hub, https://github.com/shimo4228/shimo4228. This skill belongs to one of them, AKC (Agent Knowledge Cycle): a six-phase, human-gated cycle that turns a coding agent's repeated experience into skills and rules, with its reasoning recorded as dated design decisions (ADRs). learn-eval is defined as the skill for the **Extract** phase of AKC; the installable form of the whole cycle is the akc-cycle Claude Code plugin.
