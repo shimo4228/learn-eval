@@ -46,7 +46,7 @@ cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval
 7. **書き込み** — その場で追記して diff を見せるか、形・境界・独自のドラフトゲートを受け持つ [`skill-creator`](https://github.com/shimo4228/claude-harness/tree/main/skills/skill-creator)（英語）にドラフトを渡します
 8. **到達可能性の確認** — 保存した内容へ将来のセッションを導くものは何かを 1 行で述べます。正直な答えが「誰かが grep するしかない」なら、その保存は誤りです。ステップ 3 に戻ります。逃げ込めるノート置き場はありません
 
-確認（ステップ 6）を求める前に、スキルは次の形で証拠を示します。SKILL.md が定める出力形式をもとにした形で、値は SKILL.md の例示であり、実際の実行記録ではありません。SKILL.md の形式には Grounding の行がありません。この行は、ゲートが同じく行うチェックリスト最後の項目（接地チェック）に合わせてここで足しています。
+確認（ステップ 6）を求める前に、スキルは次の形で証拠を示します。SKILL.md が定める出力形式をもとにした形で、値は SKILL.md の例示であり、実際の実行記録ではありません。
 
 ```
 ### Overlap candidates (from scripts/overlap_candidates.py)

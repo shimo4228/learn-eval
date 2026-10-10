@@ -46,7 +46,7 @@ The skill follows an 8-step process:
 7. **Write**: append in place and show the diff, or hand the draft to [`skill-creator`](https://github.com/shimo4228/claude-harness/tree/main/skills/skill-creator), which owns shape, boundaries, and its own draft gate
 8. **Reachability check**: state in one line what will route to the saved content in a future session. If the honest answer is "someone would have to grep for it", the save was wrong; go back to step 3. There is no notes directory to fall back on
 
-Before it asks you to confirm (step 6), the skill shows its evidence in this shape, adapted from the output format in SKILL.md. The values are SKILL.md's illustration, not a recorded run. SKILL.md's format has no Grounding row; it is added here for the last checklist item, the grounding check, which the gate also runs:
+Before it asks you to confirm (step 6), the skill shows its evidence in this shape, adapted from the output format in SKILL.md. The values are SKILL.md's illustration, not a recorded run.:
 
 ```
 ### Overlap candidates (from scripts/overlap_candidates.py)
