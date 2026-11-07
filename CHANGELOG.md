@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **One report, one reply in Step 6.** Every candidate goes into one numbered report, each with its own evidence, and the author answers each entry in a single reply (`all`, `all but 2`, `3 skip`); this replaces the one-at-a-time `[y/n/skip]` flow listed below. New skills are handed to `skill-writer` (formerly `skill-creator`).
 - **No notes directory.** Saves no longer land in `~/.claude/skills/learned/` or `.claude/skills/learned/`. Step 3 now picks one of two destinations — absorb into an existing skill / rule / doc section, or promote to a skill through a skill-authoring skill — and anything that fits neither is a Drop. A reachability check (Step 8) follows every Save. Measured basis: 184 reads of the old notes between 2026-06-10 and 2026-08-23, 161 of them on six audit days and 12 during real work across 8 notes.
 - **Overlap check by script.** The hand grep for duplicates is replaced by `scripts/overlap_candidates.py` (run through `uv`), which enumerates installed skills by description coverage and MEMORY.md index lines, reports shared terms, and never issues a verdict.
 - **Draft-specific yes/no questions.** Step 5 adds 3–5 atomic, refutation-oriented questions per draft (ported from BinEval, arXiv:2606.27226); each No becomes an improvement item and answers are never aggregated into a score.

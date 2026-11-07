@@ -16,18 +16,18 @@ This document is the self-contained AI reference for `learn-eval` (shimo4228, MI
 - **Layout**: `skills/learn-eval/SKILL.md`, `skills/learn-eval/scripts/overlap_candidates.py`, `skills/learn-eval/tests/`, `skills/learn-eval/pyproject.toml`, `skills/learn-eval/uv.lock`
 - **Runtime**: Claude Code; the script runs through `uv` (Python 3.11+, standard library only, bundled `uv.lock`); no paid key
 - **Status**: active, synced one way from the author's Claude Code harness by `scripts/sync-from-local.sh`; also shipped in the akc-cycle plugin, so this repository can trail the plugin between syncs
-- **Install (clone)**: `git clone https://github.com/shimo4228/learn-eval.git`, then `mkdir -p ~/.claude/skills` and `cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval` (keep the folder at that path; `skill-creator` is not included)
-- **Install (plugin)**: `/plugin marketplace add shimo4228/akc-cycle`, then `/plugin install akc-cycle@akc-cycle` — the skill runs as `/akc-cycle:learn-eval`, with `skill-creator` and the rest of AKC
+- **Install (clone)**: `git clone https://github.com/shimo4228/learn-eval.git`, then `mkdir -p ~/.claude/skills` and `cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval` (keep the folder at that path; `skill-writer` is not included)
+- **Install (plugin)**: `/plugin marketplace add shimo4228/akc-cycle`, then `/plugin install akc-cycle@akc-cycle` — the skill runs as `/akc-cycle:learn-eval`, with `skill-writer` and the rest of AKC
 - **Invocation**: `/learn-eval` (clone) or `/akc-cycle:learn-eval` (plugin) at the end of a Claude Code work session, or a request such as 「今回の学びを残して」
 - **Verdicts**: Save, Improve then Save, Absorb into X, Drop
-- **Destinations**: Absorb into an existing skill / rule / `hooks/README.md` section (default), or Promote to a skill via `skill-creator`
+- **Destinations**: Absorb into an existing skill / rule / `hooks/README.md` section (default), or Promote to a skill via `skill-writer`
 - **Notes directory**: none — the former `~/.claude/skills/learned/` and `.claude/skills/learned/` were retired
 - **Retirement measurement**: 2026-06-10 to 2026-08-23 (74 days), 184 logged reads, 161 on six audit days, 12 real-work reads across 8 notes
 - **Checklist**: per-candidate overlap judgment, append-to-existing considered, reusability, grounding in the session's observed record
 - **Draft-specific questions**: 3–5 atomic yes/no questions, refutation-oriented, never aggregated into a score
 - **Overlap script scales**: measured 2026-08-26 on a 67-skill library — existing home 0.600, genuinely new draft 0.100 at most
 - **Extraction targets**: error resolution, debugging techniques, workarounds, project patterns
-- **Confirmation model**: one candidate at a time with `[y/n/skip]`, evidence first, no batch approval; Drop needs no confirmation
+- **Confirmation model**: one report listing every candidate with its own evidence, one reply that answers each entry (`all`, `all but 2`, `3 skip`); Drop needs no approval
 - **Improve loop**: 1 re-judgment per candidate, same question set
 - **Reachability check**: mandatory after every Save
 - **Siblings**: `skill-stocktake`, `rules-distill`, `skill-comply`, `llm-as-judge`, `context-sync`, `search-first`, `llms-txt-writer`
@@ -60,7 +60,7 @@ The absence of a notes directory is defined as a design decision backed by a mea
 
 ## What are the two destinations for a Save?
 
-The two destinations are defined as Absorb and Promote. Absorb means appending the pattern to an existing skill, rule, or `hooks/README.md` section that already owns the topic; the skill names the file and the section, appends in place, and shows the diff. Absorb is the default, because an addition to a reachable asset beats a new file. Promote means the pattern has its own independent trigger — a user request no installed skill answers — so the draft is handed to `skill-creator`, which owns shape, boundaries against neighbouring skills, and its own fresh-context draft gate. If neither destination fits, the verdict is Drop.
+The two destinations are defined as Absorb and Promote. Absorb means appending the pattern to an existing skill, rule, or `hooks/README.md` section that already owns the topic; the skill names the file and the section, appends in place, and shows the diff. Absorb is the default, because an addition to a reachable asset beats a new file. Promote means the pattern has its own independent trigger — a user request no installed skill answers — so the draft is handed to `skill-writer`, which owns shape, boundaries against neighbouring skills, and its own fresh-context draft gate. If neither destination fits, the verdict is Drop.
 
 ## What are the four verdicts?
 
@@ -92,7 +92,7 @@ learn-eval explicitly does not extract trivial fixes (typos, simple syntax error
 
 ## How does this skill relate to rules-distill and skill-stocktake?
 
-The relationship is defined by layer. learn-eval works at the session boundary: one session in, each kept pattern confirmed one at a time and routed to a skill, a rule, or a `hooks/README.md` section. `skill-stocktake` audits the installed skill library for quality and retirement. `rules-distill` scans installed skills and distills environment-specific guidance into the always-loaded rules layer. learn-eval is not for mining past sessions, auditing skills, or distilling rules. Together the skills cover the Extract, Curate, and Promote phases of the Agent Knowledge Cycle (AKC), with a gate at each step so that noise does not propagate upward.
+The relationship is defined by layer. learn-eval works at the session boundary: one session in, kept patterns confirmed in one report and routed to a skill, a rule, or a `hooks/README.md` section. `skill-stocktake` audits the installed skill library for quality and retirement. `rules-distill` scans installed skills and distills environment-specific guidance into the always-loaded rules layer. learn-eval is not for mining past sessions, auditing skills, or distilling rules. Together the skills cover the Extract, Curate, and Promote phases of the Agent Knowledge Cycle (AKC), with a gate at each step so that noise does not propagate upward.
 
 ## Who is shimo4228?
 

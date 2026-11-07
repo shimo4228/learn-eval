@@ -35,7 +35,7 @@ Look for:
      lies in its comprehensiveness, so appending improves it — "I don't want to pollute the
      existing skill" routes the pattern to a file nothing reaches.
    - **Promote to a skill** — the pattern has its own independent trigger (a user request
-     that no installed skill answers). Run skill: **skill-creator** (required by
+     that no installed skill answers). Run skill: **skill-writer** (required by
      `rules/common/skills.md` before writing any skill).
 
    If neither fits, the verdict is **Drop**, not "park it somewhere for now". A note that
@@ -43,9 +43,9 @@ Look for:
    content exists (measurement: ADR-0047).
 
    Global vs project placement (once a destination type is chosen): the source of truth is
-   [`docs/adr/0025-global-vs-project-asset-placement.md`](https://github.com/shimo4228/claude-harness/blob/main/docs/adr/0025-global-vs-project-asset-placement.md).
+   [`docs/decision-history/0025-global-vs-project-asset-placement.md`](https://github.com/shimo4228/claude-harness/blob/main/docs/decision-history/0025-global-vs-project-asset-placement.md).
 
-4. Draft the candidate as a scratch note (the final skill shape belongs to `skill-creator`;
+4. Draft the candidate as a scratch note (the final skill shape belongs to `skill-writer`;
    `overlap_candidates.py` reads name / description / Problem / Solution / When to Use):
 
 ```markdown
@@ -76,12 +76,11 @@ description: "Description in 130 characters or less"
 
    ```bash
    uv run --frozen --project "${CLAUDE_SKILL_DIR}" \
-          --directory "${CLAUDE_SKILL_DIR}" \
-          python scripts/overlap_candidates.py \
-          --draft /path/to/scratch/learn-eval-draft.md --project "$PWD"
+          python "${CLAUDE_SKILL_DIR}/scripts/overlap_candidates.py" \
+          --draft /path/to/scratch/learn-eval-draft.md
    ```
 
-   Both arguments are load-bearing:
+   Two points in this command are load-bearing:
 
    - **Write the draft to a file; never inline it into the command.** A
      heredoc terminates on a line that matches its delimiter, and a draft is
@@ -90,11 +89,11 @@ description: "Description in 130 characters or less"
      `rules/common/security.md` treats a SKILL.md as a control program for
      exactly this reason: a step that builds shell source out of untrusted text
      is an injection path, not a formatting choice.
-   - **`--project "$PWD"` is required whenever `--directory` is.** `--directory`
-     makes the skill directory the process cwd, so the script's default
-     `--project .` would resolve to the skill's own directory and silently drop
-     the invoking repo's `MEMORY.md`. `$PWD` expands before uv changes
-     directory, so it still names the repo you are working in.
+   - **Run it from the repo you are working in, and name the script by its full
+     path.** `--project` only picks the uv environment; the process cwd stays the
+     invoking repo, so the script's default `--project .` finds that repo's
+     `MEMORY.md`. Adding uv's `--directory` would move the cwd into the skill
+     directory and silently drop it.
 
    Evidence mode: JSON on stdout, exit 0 however many candidates (exit 2 only when
    an input is unreadable). It enumerates; it never says "this is a duplicate".
@@ -195,26 +194,25 @@ description: "Description in 130 characters or less"
    regenerate the questions: if the bar moves, you cannot tell whether the fix worked
    or the bar loosened).
 
-6. **Per-verdict confirmation flow (one at a time, `[y/n/skip]`)**
+6. **Confirmation flow (one report, one reply)**
 
-   Even when multiple patterns were extracted from the session, confirm them
-   **one at a time — never ask for batch approval** (a bulk "save them all? [y/n]" is banned).
-   For each candidate, present the evidence first (checklist results + verdict
-   rationale), then ask `[y/n/skip]`.
-   The user can stop at any point. `n` = discard, `skip` = defer for now (leave a
-   one-line reason):
+   Put every candidate in one numbered report, each entry carrying its own evidence
+   (checklist results + verdict rationale) so it reads on its own, then ask once. The
+   author answers per entry in one reply (`all`, `all but 2`, `3 skip`, …). `n` = discard,
+   `skip` = defer for now (leave a one-line reason). A single candidate is the same report
+   with one entry.
 
-   - **Save**: present the save path + checklist results + one-line verdict rationale + the full draft → save after `[y/n/skip]` confirmation
-   - **Absorb into [X]**: present the target path + the content to add (as a diff) + checklist results + verdict rationale → append after `[y/n/skip]` confirmation
-   - **Drop**: show the checklist results + reason only (no confirmation needed; stop)
+   - **Save**: the entry shows the save path + checklist results + one-line verdict rationale + the full draft → save the approved entries
+   - **Absorb into [X]**: the entry shows the target path + the content to add (as a diff) + checklist results + verdict rationale → append the approved entries
+   - **Drop**: the entry shows the checklist results + reason only (no approval needed)
 
 7. Save to the destination chosen in Step 3
 
    - **Absorb**: append to the named asset in place and show the diff. Do not create a file.
-   - **Promote**: hand the draft to skill: **skill-creator** — it fixes the intent packet,
+   - **Promote**: hand the draft to skill: **skill-writer** — it fixes the intent packet,
      draws the boundary against neighbouring skills, structures it as
      `~/.claude/skills/<name>/SKILL.md`, and passes it through a fresh-context draft gate
-     (learn-eval = extraction and Save/Drop judgment / skill-creator = shape, boundary and
+     (learn-eval = extraction and Save/Drop judgment / skill-writer = shape, boundary and
      gate — a deliberate role split).
 
 8. **Reachability check (after a Save only)**

@@ -10,14 +10,14 @@ Status: active, synced one way from the author's Claude Code harness by `scripts
 - [README.md](README.md) / [README.ja.md](README.ja.md): human-facing narrative (English + Japanese)
 - [SKILL.md](skills/learn-eval/SKILL.md): full skill specification — what to extract, the two destinations, the quality gate, the verdict flow, the reachability check
 - [overlap_candidates.py](skills/learn-eval/scripts/overlap_candidates.py): evidence script that enumerates installed skills and MEMORY.md lines a draft may duplicate (JSON, no verdict)
-- [akc-cycle](https://github.com/shimo4228/akc-cycle): Claude Code plugin that installs this skill as `/akc-cycle:learn-eval` together with `skill-creator` and the rest of the Agent Knowledge Cycle
+- [akc-cycle](https://github.com/shimo4228/akc-cycle): Claude Code plugin that installs this skill as `/akc-cycle:learn-eval` together with `skill-writer` and the rest of the Agent Knowledge Cycle
 
 ## Architecture
 
-- Two destinations, no parking lot: **Absorb** into an existing skill / rule / `hooks/README.md` section that owns the topic (default), or **Promote** to a skill with its own trigger via `skill-creator`. Neither fits → Drop
+- Two destinations, no parking lot: **Absorb** into an existing skill / rule / `hooks/README.md` section that owns the topic (default), or **Promote** to a skill with its own trigger via `skill-writer`. Neither fits → Drop
 - Quality gate in three layers: overlap candidates from `overlap_candidates.py` (run through `uv`) → fixed checklist plus 3–5 draft-specific yes/no questions (no score aggregation) → one holistic verdict that lists every No as grounds
 - 4 verdicts: **Save** (stands on its own → promote to a skill), **Improve then Save** (each No becomes an improvement item; one re-judgment with the same questions), **Absorb into [X]** (belongs inside an existing asset → append), **Drop**
-- Confirmation one candidate at a time with `[y/n/skip]`, evidence first, never batch approval
+- Confirmation in one report: each candidate with its own evidence, one reply answering each entry; Drop needs no approval
 - Reachability check after every Save: state what will route to the saved content; "someone would have to grep for it" means the Save was wrong
 - Why the notes directory was retired: over 74 days the old `skills/learned/` notes were read during real work 12 times across 8 notes, while audits of the directory accounted for 161 of its 184 reads
 

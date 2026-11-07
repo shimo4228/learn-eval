@@ -20,9 +20,9 @@ mkdir -p ~/.claude/skills
 cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval
 ```
 
-スキルはスクリプトを `~/.claude/skills/learn-eval` から呼ぶので、フォルダはこの場所に置いてください。既存のファイルへの追記にはほかに何も要りません。新しい skill への昇格では `skill-creator` を呼びますが、この方法では入らないので、その場合は [Agent Skills 仕様](https://agentskills.io/specification)（英語）に沿って `SKILL.md` を自分で書きます。
+スキルはスクリプトを `~/.claude/skills/learn-eval` から呼ぶので、フォルダはこの場所に置いてください。既存のファイルへの追記にはほかに何も要りません。新しい skill への昇格では `skill-writer` を呼びますが、この方法では入らないので、その場合は [Agent Skills 仕様](https://agentskills.io/specification)（英語）に沿って `SKILL.md` を自分で書きます。
 
-**Claude Code プラグイン [akc-cycle](https://github.com/shimo4228/akc-cycle)（英語）を入れる**と、同じスキルが `/akc-cycle:learn-eval` という名前で、`skill-creator` と Agent Knowledge Cycle のほかのスキルと一緒に入ります。Agent Knowledge Cycle（AKC）は著者の 6 フェーズのサイクルで、コーディングエージェントが繰り返した経験を、人の承認を経て skill と rule に変えます。learn-eval はこのサイクルの Extract（抽出）フェーズです。プラグイン版はスクリプトをプラグインの中から呼びます。
+**Claude Code プラグイン [akc-cycle](https://github.com/shimo4228/akc-cycle)（英語）を入れる**と、同じスキルが `/akc-cycle:learn-eval` という名前で、`skill-writer` と Agent Knowledge Cycle のほかのスキルと一緒に入ります。Agent Knowledge Cycle（AKC）は著者の 6 フェーズのサイクルで、コーディングエージェントが繰り返した経験を、人の承認を経て skill と rule に変えます。learn-eval はこのサイクルの Extract（抽出）フェーズです。プラグイン版はスクリプトをプラグインの中から呼びます。
 
 ```
 /plugin marketplace add shimo4228/akc-cycle
@@ -42,8 +42,8 @@ cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval
 3. **保存先の決定** — 残すパターンの行き先は 2 つのうちどちらか 1 つです。そのトピックを既に持っている既存の skill・rule・`hooks/README.md` の節へ**追記する**（既定）か、インストール済みのどの skill も受けない独立した発火条件を持つ場合に、独自の skill へ**昇格させる**かです。どちらにも当てはまらなければ判定は Drop で、何も保存しません
 4. **ドラフト** — 候補をスクラッチノートとして書きます（name / description / Problem / Solution / When to Use）。重複チェックのスクリプトが読めるよう、セッションのスクラッチパッドに書き出します
 5. **品質ゲート** — 重複候補（ドラフトと重なりうるインストール済みの skill とメモリの行）の列挙、チェックリスト、ドラフト固有の質問を経て、最後に総合判断で判定を 1 つ出します
-6. **確認** — 候補を 1 件ずつ、証拠を提示してから `[y/n/skip]` で確認します（一括承認はしません）
-7. **書き込み** — その場で追記して diff を見せるか、形・境界・独自のドラフトゲートを受け持つ [`skill-creator`](https://github.com/shimo4228/claude-harness/tree/main/skills/skill-creator)（英語）にドラフトを渡します
+6. **確認** — 候補を 1 枚の report にまとめて各候補に証拠を付け、1 回の返答で候補ごとに答えてもらいます（`all`、`all but 2`、`3 skip` など）
+7. **書き込み** — その場で追記して diff を見せるか、形・境界・独自のドラフトゲートを受け持つ [`skill-writer`](https://github.com/shimo4228/claude-harness/tree/main/skills/skill-writer)（英語）にドラフトを渡します
 8. **到達可能性の確認** — 保存した内容へ将来のセッションを導くものは何かを 1 行で述べます。正直な答えが「誰かが grep するしかない」なら、その保存は誤りです。ステップ 3 に戻ります。逃げ込めるノート置き場はありません
 
 確認（ステップ 6）を求める前に、スキルは次の形で証拠を示します。SKILL.md が定める出力形式をもとにした形で、値は SKILL.md の例示であり、実際の実行記録ではありません。
@@ -115,7 +115,7 @@ cp -r learn-eval/skills/learn-eval ~/.claude/skills/learn-eval
 - **[LLM-as-judge はスコアを集計しない — チェックは証拠、判定は総合判断](https://zenn.dev/shimo4228/articles/llm-judge-checks-not-scores)**（[English](https://dev.to/shimo4228/llm-as-judge-shouldnt-aggregate-scores-binary-checks-as-evidence-one-holistic-verdict-822)）: このスキルの品質ゲートが yes/no の答えを 1 つの判定の証拠として扱い、足し合わせない理由を、このゲートとスキル監査の運用から書いています。
 - **[akc-cycle](https://github.com/shimo4228/akc-cycle)**: このスキルをサイクルのほかのスキルと一緒に、1 つの Claude Code プラグインとして入れます（英語）。
 - **[Agent Knowledge Cycle](https://github.com/shimo4228/agent-knowledge-cycle)**: Extract を含むサイクルの各フェーズがなぜあるのかを、日付付きの設計判断として記録しています。
-- **[rules-distill](https://github.com/shimo4228/rules-distill)**: 後のフェーズです。常時読み込まれる rule に置くべき原則を見つけ、1 件ずつあなたの確認を取って rule にします（英語）。
+- **[rules-distill](https://github.com/shimo4228/rules-distill)**: 後のフェーズです。常時読み込まれる rule に置くべき原則を見つけ、1 枚の report であなたの承認を取ってから rule にします（英語）。
 - **[skill-stocktake](https://github.com/shimo4228/skill-stocktake)**: 保存した skill が古くなっていないか、矛盾や重複がないかを監査し、skill ごとに判定を出します。
 - **[shimo4228](https://github.com/shimo4228/shimo4228)**: 著者の hub です。AKC をほかの長期プロジェクトとその DOI と並べています。
 
@@ -130,7 +130,7 @@ learn-eval は、作業セッションから再利用できるパターンを抽
 
 このスキルがあるのは、何からも指されていないノートは読まれないからです。著者の以前の版はパターンを `skills/learned/` に保存していました。74 日間（2026-06-10 から 2026-08-23）でこのノート群が開かれたのは 184 回（harness の利用ログに残った、エージェントによるファイル読み込み）で、そのうち 161 回は残すかどうかを監査 skill が判定していた 6 日間に集中し、実際の作業が進んでいる repo の中で読まれたのは 8 件のノートで 12 回だけでした。そのため、いまは保存のたびに何がそこへ導くのかを名指しさせ、抽出をエージェント自身の要約ではなくセッションの観測記録（ツール出力・エラー・ユーザーの訂正）に照合します。自己評価だけで回るループは少しずつずれていくからです。この接地チェックは [SkillLearnBench](https://arxiv.org/abs/2604.20087)（Zhong et al., 2026）に沿っています。この研究は、自己フィードバックだけでは recursive drift（再帰的ドリフト）が起き、外部フィードバックに接地した反復なら実際に改善すると報告しています。skill ライブラリで起きるこのずれは、model collapse（[Shumailov et al., 2024](https://www.nature.com/articles/s41586-024-07566-y)）がモデルの学習について述べた失敗と同じで、自分の出力を食べさせ続けると生成の質が落ちていきます。接地チェックは、その教訓を一段上の、エージェントが自分の skill に書き込む内容に当てはめたものです。ドラフト固有の yes/no 質問と、No だった質問がそのまま改善項目になる規則は、BinEval（[Ask, Don't Judge: Binary Questions for Interpretable LLM Evaluation and Self-Improvement](https://arxiv.org/abs/2606.27226)、英語）から移植しました。答えを足し合わせないのも、同じ論文が自ら認める限界に従ったものです。品質を全体として見る観点では、Yes と答えた質問が多いほど品質が高いとは言えない、と論文は述べています。
 
-基本情報: ライセンスは MIT です。`SKILL.md` と Python スクリプト 1 本、`scripts/overlap_candidates.py`（Python 3.11 以上、標準ライブラリのみ、同梱の `uv.lock` で `uv` から実行、テストは `tests/`）からなり、著者 1 人（@shimo4228）が保守しています。状態は現役で、著者の Claude Code harness から `scripts/sync-from-local.sh`（commit はしません）で一方向に同期しています。akc-cycle プラグインにも入っているので、同期と同期の間はこのリポジトリがプラグインより古いことがあります。必要なものは Claude Code と、PATH の通った `uv` です。スキルは Claude Code で開発・検証しており、ほかの Agent Skills 互換のエージェントへ移せるように書いていますが、そこでも重複チェックのスクリプトは Claude Code の場所（skill は `~/.claude/skills`、メモリは `~/.claude/projects`）と比べます。skill の場所は `--skills-root` で変えられ、`~/.claude/projects` を探すのを止めるのは `--no-auto-memory` です（`--memory` は比べる MEMORY.md を足すだけです）。有料キーは要りません。スキルは skill・rule・`hooks/README.md` のファイルを編集しますが、どれも 1 件ずつ `[y/n/skip]` で確認を取ってからです（重複チェックのスクリプトに渡すスクラッチのドラフトは、その前に書かれます）。新しい skill は `skill-creator` へ渡します。
+基本情報: ライセンスは MIT です。`SKILL.md` と Python スクリプト 1 本、`scripts/overlap_candidates.py`（Python 3.11 以上、標準ライブラリのみ、同梱の `uv.lock` で `uv` から実行、テストは `tests/`）からなり、著者 1 人（@shimo4228）が保守しています。状態は現役で、著者の Claude Code harness から `scripts/sync-from-local.sh`（commit はしません）で一方向に同期しています。akc-cycle プラグインにも入っているので、同期と同期の間はこのリポジトリがプラグインより古いことがあります。必要なものは Claude Code と、PATH の通った `uv` です。スキルは Claude Code で開発・検証しており、ほかの Agent Skills 互換のエージェントへ移せるように書いていますが、そこでも重複チェックのスクリプトは Claude Code の場所（skill は `~/.claude/skills`、メモリは `~/.claude/projects`）と比べます。skill の場所は `--skills-root` で変えられ、`~/.claude/projects` を探すのを止めるのは `--no-auto-memory` です（`--memory` は比べる MEMORY.md を足すだけです）。有料キーは要りません。スキルは skill・rule・`hooks/README.md` のファイルを編集しますが、どれも 1 枚の report への著者の返答で承認されてからです（重複チェックのスクリプトに渡すスクラッチのドラフトは、その前に書かれます）。新しい skill は `skill-writer` へ渡します。
 
 例: 重複チェックのスクリプトはドラフトをファイルとして受け取ります。clone で入れた場合、スキルは `uv run --frozen --project ~/.claude/skills/learn-eval --directory ~/.claude/skills/learn-eval python scripts/overlap_candidates.py --draft <draft.md> --project "$PWD"` で実行し（プラグイン版はプラグインの中から実行します）、スクリプトは JSON を出します。インストール済みの skill を、各 description をドラフトがどれだけ覆うかで順位づけし、一致する MEMORY.md の index 行も挙げ、それぞれに共有語と読めなかったファイルを付けます。「重複だ」とは言いません。そのうえでモデルが固定のチェックリストと 3〜5 個のドラフト固有の yes/no 質問に答え、Save・Improve then Save・Absorb into [X]・Drop のどれか 1 つの判定を出します。
 
