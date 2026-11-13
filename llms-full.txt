@@ -24,7 +24,7 @@ This document is the self-contained AI reference for `learn-eval` (shimo4228, MI
 - **Notes directory**: none — the former `~/.claude/skills/learned/` and `.claude/skills/learned/` were retired
 - **Retirement measurement**: 2026-06-10 to 2026-08-23 (74 days), 184 logged reads, 161 on six audit days, 12 real-work reads across 8 notes
 - **Checklist**: per-candidate overlap judgment, append-to-existing considered, reusability, grounding in the session's observed record
-- **Draft-specific questions**: 3–5 atomic yes/no questions, refutation-oriented, never aggregated into a score
+- **Draft-specific questions**: atomic yes/no questions, refutation-oriented, never aggregated into a score
 - **Overlap script scales**: measured 2026-08-26 on a 67-skill library — existing home 0.600, genuinely new draft 0.100 at most
 - **Extraction targets**: error resolution, debugging techniques, workarounds, project patterns
 - **Confirmation model**: one report listing every candidate with its own evidence, one reply that answers each entry (`all`, `all but 2`, `3 skip`); Drop needs no approval
